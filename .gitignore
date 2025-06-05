@@ -1,0 +1,5 @@
+.venv
+__pycache__
+.spyproject
+data/documents.json
+data/index.faiss

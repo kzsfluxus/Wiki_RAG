@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Wiki RAG Chat</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" >
+</head>
+<body>
+    <h1>KZSFluxus - Wiki chatbot</h1>
+    <form method="post">
+        <label for="question">Kérdés:</label><br>
+        <input type="text" id="question" name="question" value="{{ question }}" size="80"><br><br>
+        <button type="submit">Küldés</button>
+    </form>
+
+    {% if answer %}
+    <h2>Válasz:</h2>
+    <p>{{ answer.replace('\n', '<br>')|safe }}</p>
+    {% endif %}
+</body>
+</html>
