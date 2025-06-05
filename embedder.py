@@ -22,12 +22,12 @@ class Embedder:
         embeddings = self.model.encode([doc['text'] for doc in docs])
         self.index.add(np.array(embeddings).astype('float32'))
 
-    def save(self, index_path='data/index.faiss', docs_path='data/documents.json'):
+    def save(self, index_path='data/index.faiss', docs_path='data/wiki_pages.json'):
         faiss.write_index(self.index, index_path)
         with open(docs_path, 'w', encoding='utf-8') as f:
             json.dump(self.documents, f, ensure_ascii=False, indent=2)
 
-    def load(self, index_path='data/index.faiss', docs_path='data/documents.json'):
+    def load(self, index_path='data/index.faiss', docs_path='data/wiki_pages.json'):
         self.index = faiss.read_index(index_path)
         with open(docs_path, 'r', encoding='utf-8') as f:
             self.documents = json.load(f)
