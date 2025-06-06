@@ -11,7 +11,7 @@ os.environ['PYTHONWARNINGS'] = 'ignore'
 from pathlib import Path
 from retriever import auto_fetch_from_config
 from embedder import Embedder
-from clean_text import clean_wiki_text
+from text_cleaner import clean_wiki_text
 from ollama_runner import run_ollama_model
 from prompt_builder import build_prompt
 from docs_loader import clear_cache, should_refresh_data, load_docs, WIKI_FILE
