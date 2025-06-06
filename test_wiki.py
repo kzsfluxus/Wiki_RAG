@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  5 15:31:49 2025
+@author: zsolt
+"""
 
 # Teszt script a wiki letöltés ellenőrzéséhez
 import os
@@ -78,4 +82,3 @@ if Path(wiki_file).exists():
     print(f"✅ Wiki fájl most már létezik: {wiki_file}")
 else:
     print(f"❌ Wiki fájl még mindig hiányzik: {wiki_file}")# -*- coding: utf-8 -*-
-

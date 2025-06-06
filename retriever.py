@@ -35,8 +35,8 @@ def fetch_wiki_pages(site_url, path='/wiki/', username=None, password=None, limi
         try:
             text = page.text()
             pages.append({'title': page.name, 'text': text})
-        except Exception as e:
-            print(f"❌ Skipping {page.name}: {e}")
+        except Exception as error:
+            print(f"❌ Skipping {page.name}: {error}")
     save_pages(pages, output_path)
 
 def fetch_selected_pages(site_url, titles, path='/w/', username=None, password=None):
@@ -44,21 +44,21 @@ def fetch_selected_pages(site_url, titles, path='/w/', username=None, password=N
     if username and password:
         site.login(username, password)
         print("🔐 Bejelentkezés sikeres")
-    
+
     pages = []
     print(f"🔗 Csatlakozás: https://{site_url}{path}")
     print(f"📄 Letöltendő oldalak: {titles}")
-    
+
     for title in titles:
         try:
             print(f"🔄 Letöltés: {title}")
             page = site.pages[title]
-            
+
             # Ellenőrizzük, hogy létezik-e az oldal
             if not page.exists:
                 print(f"⚠️ Az oldal nem létezik: {title}")
                 continue
-                
+
             text = page.text()
             if text.strip():  # Ellenőrizzük, hogy van-e tartalom
                 pages.append({
@@ -68,14 +68,14 @@ def fetch_selected_pages(site_url, titles, path='/w/', username=None, password=N
                 print(f"✅ Sikeresen letöltve: {title} ({len(text)} karakter)")
             else:
                 print(f"⚠️ Üres oldal: {title}")
-        except Exception as e:
-            print(f"❌ Hiba '{title}' letöltése közben: {e}")
-    
+        except Exception as error:
+            print(f"❌ Hiba '{title}' letöltése közben: {error}")
+
     # Mentés és eredmény kiírása
     if pages:
         os.makedirs(os.path.dirname(DEFAULT_OUTPUT), exist_ok=True)
-        with open(DEFAULT_OUTPUT, 'w', encoding='utf-8') as f:
-            json.dump(pages, f, ensure_ascii=False, indent=2)
+        with open(DEFAULT_OUTPUT, 'w', encoding='utf-8') as file:
+            json.dump(pages, file, ensure_ascii=False, indent=2)
         print(f"✅ Összesen letöltve: {len(pages)} oldal --> {DEFAULT_OUTPUT}")
     else:
         print("❌ Nem sikerült egyetlen oldalt sem letölteni.")
@@ -85,31 +85,31 @@ def fetch_related_pages(site_url, root_title, limit=50, path='/w/', username=Non
     if username and password:
         site.login(username, password)
         print("🔐 Bejelentkezés sikeres")
-    
+
     print(f"🔗 Csatlakozás: https://{site_url}{path}")
     print(f"🔍 Keresés: '{root_title}' kezdetű oldalak")
-    
+
     try:
         results = site.api('query', list='prefixsearch', pssearch=root_title, pslimit=limit)
         titles = [res['title'] for res in results.get('query', {}).get('prefixsearch', [])]
-        
+
         if not titles:
             print(f"⚠️ Nincs találat: '{root_title}' kezdetű oldalakra.")
             return
-            
+
         print(f"🔹 Talált oldalak ({len(titles)}): {titles}")
         fetch_selected_pages(site_url, titles, path=path, username=username, password=password)
-        
-    except Exception as e:
-        print(f"❌ Hiba prefixsearch közben: {e}")
+
+    except Exception as error:
+        print(f"❌ Hiba prefixsearch közben: {error}")
 
 def auto_fetch_from_config(conf_file='wiki_rag.conf'):
     config = configparser.ConfigParser()
-    
+
     if not os.path.exists(conf_file):
         print(f"❌ Konfigurációs fájl nem található: {conf_file}")
         return
-        
+
     config.read(conf_file)
 
     if not config.has_section('wiki') or not config.get('wiki', 'url', fallback='').strip():

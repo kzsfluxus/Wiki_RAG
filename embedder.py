@@ -6,10 +6,10 @@ Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
 """
 
+import json
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-import json
 
 class Embedder:
     def __init__(self, model_name='all-MiniLM-L6-v2'):
@@ -24,13 +24,13 @@ class Embedder:
 
     def save(self, index_path='data/index.faiss', docs_path='data/wiki_pages.json'):
         faiss.write_index(self.index, index_path)
-        with open(docs_path, 'w', encoding='utf-8') as f:
-            json.dump(self.documents, f, ensure_ascii=False, indent=2)
+        with open(docs_path, 'w', encoding='utf-8') as file:
+            json.dump(self.documents, file, ensure_ascii=False, indent=2)
 
     def load(self, index_path='data/index.faiss', docs_path='data/wiki_pages.json'):
         self.index = faiss.read_index(index_path)
-        with open(docs_path, 'r', encoding='utf-8') as f:
-            self.documents = json.load(f)
+        with open(docs_path, 'r', encoding='utf-8') as file:
+            self.documents = json.load(file)
 
     def query(self, question, top_k=3):
         q_embed = self.model.encode([question]).astype('float32')

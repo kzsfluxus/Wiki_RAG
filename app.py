@@ -34,22 +34,22 @@ def clear_cache():
         # Memória cache törlése
         _docs = None
         _embedder = None
-        
+
         # Data könyvtár törlése
         if os.path.exists('data'):
             shutil.rmtree('data')
             print("🗑️ Cache törölve (data könyvtár)")
-        
+
         # FAISS index törlése
         faiss_files = ['data/index.faiss', 'data/index.pkl']
         for file in faiss_files:
             if os.path.exists(file):
                 os.remove(file)
                 print(f"🗑️ Index fájl törölve: {file}")
-                
+
         return True
-    except Exception as e:
-        print(f"❌ Hiba cache törlése közben: {e}")
+    except Exception as error:
+        print(f"❌ Hiba cache törlése közben: {error}")
         return False
 
 def should_refresh_data():
@@ -58,45 +58,45 @@ def should_refresh_data():
     if not Path(WIKI_FILE).exists():
         print("ℹ️ Nincs wiki adat, letöltés szükséges")
         return True
-    
+
     # Ha nincs config fájl, nem tudjuk ellenőrizni
     if not Path(CONFIG_FILE).exists():
         return False
-    
+
     try:
         # Fájlok módosítási idejének ellenőrzése
         wiki_mtime = os.path.getmtime(WIKI_FILE)
         config_mtime = os.path.getmtime(CONFIG_FILE)
-        
+
         # Ha a config újabb, mint a wiki adat, frissíteni kell
         if config_mtime > wiki_mtime:
             print("🔄 Konfiguráció újabb mint az adat, frissítés szükséges")
             return True
-            
+
         # Ellenőrizzük, hogy a wiki fájlban tényleg a config szerinti város van-e
         with open(WIKI_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
+
         # Config-ból olvassuk ki, hogy mit kellene tartalmaznia
         config = configparser.ConfigParser()
         config.read(CONFIG_FILE)
-        
+
         if config.has_section('selected'):
             expected_pages = config.get('selected', 'pages', fallback='').strip()
             expected_titles = [p.strip() for p in expected_pages.split(',') if p.strip()]
-            
+
             # Ellenőrizzük, hogy a várt oldalak szerepelnek-e
             actual_titles = [doc.get('title', '') for doc in data]
-            
+
             for expected in expected_titles:
                 if not any(expected.lower() in title.lower() for title in actual_titles):
                     print(f"⚠️ Hiányzó oldal az adatokból: {expected}")
                     return True
-                    
-    except Exception as e:
-        print(f"⚠️ Nem sikerült ellenőrizni az adatok frissességét: {e}")
+
+    except Exception as error:
+        print(f"⚠️ Nem sikerült ellenőrizni az adatok frissességét: {error}")
         return False
-    
+
     return False
 
 def load_docs():
@@ -113,9 +113,9 @@ def get_embedder():
     global _embedder
     if _embedder is None:
         _embedder = Embedder()
-        
+
         docs = load_docs()
-        
+
         if Path('data/index.faiss').exists() and not should_refresh_data():
             print("📊 Index betöltése...")
             _embedder.load()
@@ -124,7 +124,7 @@ def get_embedder():
             _embedder.build_index(docs)
             _embedder.save()
             print("✅ Index mentve")
-    
+
     return _embedder
 
 def build_prompt(contexts, question):
@@ -137,28 +137,28 @@ def build_prompt(contexts, question):
 def initialize_system():
     """Rendszer inicializálása - ellenőrzi és frissíti az adatokat ha szükséges"""
     print("🚀 Wiki RAG Flask alkalmazás indítása...")
-    
+
     # Ellenőrizzük, hogy kell-e frissíteni az adatokat
     if should_refresh_data():
         print("🔄 Adatok frissítése...")
         clear_cache()
         auto_fetch_from_config()
-        
+
         # Ellenőrizzük, hogy sikerült-e a letöltés
         if not Path(WIKI_FILE).exists():
             print("❌ Nem sikerült letölteni az adatokat!")
             return False
     else:
         print("✅ Adatok naprakészek")
-    
+
     # Előzetes betöltés
     try:
         load_docs()
         get_embedder()
         print("🎯 RAG rendszer kész!")
         return True
-    except Exception as e:
-        print(f"❌ Hiba az inicializálás során: {e}")
+    except Exception as error:
+        print(f"❌ Hiba az inicializálás során: {error}")
         return False
 
 @app.route('/', methods=['GET', 'POST'])
@@ -172,35 +172,35 @@ def index():
                                      answer="❌ Hiba: Nem sikerült inicializálni a rendszert",
                                      error=True)
             app._initialized = True
-        
+
         answer = None
         question = ""
-        
+
         if request.method == 'POST':
             question = request.form.get('question', '').strip()
-            
+
             if question:
                 try:
                     print(f"🔍 Kérdés: {question}")
-                    
+
                     embedder = get_embedder()
                     results = embedder.query(question)
-                    
+
                     print("🤖 Válasz generálása...")
                     prompt = build_prompt(results, question)
                     answer = run_mistral(prompt)
-                    
-                except Exception as e:
-                    print(f"❌ Hiba a kérdés feldolgozása során: {e}")
-                    answer = f"❌ Hiba történt: {str(e)}"
-        
+
+                except Exception as error:
+                    print(f"❌ Hiba a kérdés feldolgozása során: {error}")
+                    answer = f"❌ Hiba történt: {str(error)}"
+
         return render_template('index.html', question=question, answer=answer)
-        
-    except Exception as e:
-        print(f"❌ Általános hiba: {e}")
+
+    except Exception as error:
+        print(f"❌ Általános hiba: {error}")
         return render_template('index.html', 
                              question="", 
-                             answer=f"❌ Rendszerhiba: {str(e)}",
+                             answer=f"❌ Rendszerhiba: {str(error)}",
                              error=True)
 
 @app.route('/refresh', methods=['POST'])
