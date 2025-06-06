@@ -16,7 +16,6 @@
 
     {% if clean_answer %}
     <article>
-        <h3>Válasz:</h3>
         <p>{{ clean_answer.replace('\n', '<br>')|safe }}</p>
     </article>
     {% endif %}
