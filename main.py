@@ -14,6 +14,7 @@ os.environ['PYTHONWARNINGS'] = 'ignore'
 from pathlib import Path
 from retriever import auto_fetch_from_config
 from embedder import Embedder
+from clean_text import clean_wiki_text
 from ollama_runner import run_mistral
 
 WIKI_FILE = 'data/wiki_pages.json'
@@ -154,8 +155,9 @@ def main():
 
             print("🤖 Válasz generálása...")
             prompt = build_prompt(results, question)
-            answer = run_mistral(prompt)
-            print(f"\n💬 Válasz:\n{answer}\n")
+            raw_answer = run_mistral(prompt)
+            clean_answer = clean_wiki_text(raw_answer)
+            print(f"\n💬 Válasz:\n{clean_answer}\n")
 
         except KeyboardInterrupt:
             print("\n👋 Kilépés...")

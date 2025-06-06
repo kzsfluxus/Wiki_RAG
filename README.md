@@ -50,11 +50,11 @@ username =              # Felhasználónév, amennyiben szükséges
 password =              # Jelszó
 
 [selected]
-pages = Pilis           # Letöltendő oldalak
+pages = Pest vármegye   # Letöltendő oldal(ak)
 
 [related]
-root = Budapest         # További oldalak 
-limit = 50              # Oldalak maximális száma
+root = Budapest         # További Budapesttel kapcsolatos oldalak
+limit = 50              # Letöltött oldalak maximális száma
 ```
 ## Képernyőképek
 

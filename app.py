@@ -8,7 +8,6 @@ import warnings
 import os
 import shutil
 import configparser
-import re
 warnings.filterwarnings("ignore")
 os.environ['PYTHONWARNINGS'] = 'ignore'
 from flask import Flask, request, render_template
@@ -17,6 +16,7 @@ import json
 from embedder import Embedder
 from ollama_runner import run_mistral
 from retriever import auto_fetch_from_config
+from clean_text import clean_wiki_text
 
 app = Flask(__name__)
 
@@ -162,37 +162,7 @@ def initialize_system():
         print(f"❌ Hiba az inicializálás során: {error}")
         return False
 
-def clean_wiki_text(text):
-    """
-    Wikipedia szöveg teljes tisztítása a legtisztább válasz érdekében
-    """
-    if not text:
-        return text
 
-    # 1. Link formátumok tisztítása
-    text = re.sub(r'\[\[([^|\]]+)\|([^\]]+)\]\]', r'\2', text)  # [[link|display]] -> display
-    text = re.sub(r'\[\[([^\]]+)\]\]', r'\1', text)            # [[link]] -> link
-
-    # 2. Template-ek eltávolítása
-    text = re.sub(r'\{\{[^}]+\}\}', '', text)
-
-    # 3. Referenciák eltávolítása
-    text = re.sub(r'<ref[^>]*>.*?</ref>', '', text, flags=re.DOTALL)
-    text = re.sub(r'<ref[^>]*\/>', '', text)
-
-    # 4. HTML tagek eltávolítása
-    text = re.sub(r'<[^>]+>', '', text)
-
-    # 5. Wiki markup elemek
-    text = re.sub(r"'''([^']+)'''", r'\1', text)  # '''bold''' -> bold
-    text = re.sub(r"''([^']+)''", r'\1', text)    # ''italic'' -> italic
-
-    # 6. Szóközök és sorok rendezése
-    text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)  # Több üres sor -> dupla
-    text = re.sub(r' +', ' ', text)                 # Több szóköz -> egy
-    text = re.sub(r'\n ', '\n', text)               # Sorok eleji szóközök
-
-    return text.strip()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

@@ -14,10 +14,10 @@
     </form>
     <hr>
 
-    {% if answer %}
+    {% if clean_answer %}
     <article>
-        <h2>Válasz:</h2>
-        <p>{{ answer.replace('\n', '<br>')|safe }}</p>
+        <h3>Válasz:</h3>
+        <p>{{ clean_answer.replace('\n', '<br>')|safe }}</p>
     </article>
     {% endif %}
     
