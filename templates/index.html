@@ -13,9 +13,12 @@
         <button type="submit">Küldés</button>
     </form>
 
+    <article>
     {% if answer %}
     <h2>Válasz:</h2>
     <p>{{ answer.replace('\n', '<br>')|safe }}</p>
     {% endif %}
+    </article>
+    
 </body>
 </html>
