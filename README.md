@@ -21,7 +21,8 @@ Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lok
 ## Telepítés:
 ```bash
 python3 -m venv .venv
-pip3 install -r requirements.txt
+pip3 install -r requirements-cpu.txt # CPU-only gépeken
+pip3 install -r requirements-gpu.txt # NVIDIA GPU-t és CUDA-t használó gépeken
 ```
 
 ## Használat:
