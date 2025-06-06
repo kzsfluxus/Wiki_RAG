@@ -4,10 +4,10 @@ Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lok
 
 ## ✨ Főbb jellemzők
 
-- 🕸️ MediaWiki-oldalak lekérdezése `mwclient` segítségével
+- 🕸️ MediaWiki-oldalak lekérdezése `mwclient` használatával
 - 🧠 Embedding generálás lokálisan futó Mistral modellel (Ollama)
 - ⚡ FAISS-alapú keresés
-- 🌐 Flask-alapú webes keresőfelület (autocomplete támogatással)
+- 🌐 Flask-alapú webes keresőfelület 
 
 ---
 
@@ -56,3 +56,8 @@ pages = Pilis           # Letöltendő oldalak
 root = Budapest         # További oldalak 
 limit = 50              # Oldalak maximális száma
 ```
+## Képernyőképek
+
+![config](images/config.png)
+![loading](images/cli_load.png)
+![web](images/web.png)
