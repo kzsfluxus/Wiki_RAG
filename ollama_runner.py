@@ -15,7 +15,7 @@ def run_ollama_model(prompt, model_name="mistral"):
             input=prompt.encode(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=480  # 8 perc az első betöltéshez
+            timeout=600  # 10 perc az első betöltéshez
         )
         if result.returncode == 0:
             return result.stdout.decode()

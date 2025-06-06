@@ -10,6 +10,9 @@ import json
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Embedder:
     def __init__(self, model_name='all-MiniLM-L6-v2'):
@@ -27,7 +30,7 @@ class Embedder:
         # Debug: első dokumentum ellenőrzése
         print(f"📄 Első dokumentum: {docs[0].get('text', 'NINCS TEXT MEZŐ')[:100]}...")
         
-        embeddings = self.model.encode([doc['text'] for doc in docs])
+        embeddings = self.model.encode([doc['text'] for doc in docs], show_progress_bar=False)
         print(f"🔢 Embedding méret: {embeddings.shape}")
         
         self.index.add(np.array(embeddings).astype('float32'))
@@ -63,18 +66,18 @@ class Embedder:
             return []
         
         # Keresés
-        q_embed = self.model.encode([question]).astype('float32')
+        q_embed = self.model.encode([question], show_progress_bar=False).astype('float32')
         distances, indices = self.index.search(q_embed, top_k)
         
-        print(f"📏 Távolságok: {distances[0]}")
-        print(f"📍 Indexek: {indices[0]}")
+        logger.debug(f"📏 Távolságok: {distances[0]}")
+        logger.debug(f"📍 Indexek: {indices[0]}")
         
         # Biztonságos dokumentum lekérés
         results = []
         for i, idx in enumerate(indices[0]):
             if idx >= 0 and idx < len(self.documents):  # Érvényes index ellenőrzés
                 doc = self.documents[idx]
-                print(f"📄 {i+1}. találat (távolság: {distances[0][i]:.3f}): {doc.get('text', '')[:100]}...")
+                logger.debug(f"📄 {i+1}. találat (távolság: {distances[0][i]:.3f}): {doc.get('text', '')[:100]}...")
                 results.append(doc)
             else:
                 print(f"⚠️ Érvénytelen index: {idx}")
