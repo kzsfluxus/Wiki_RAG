@@ -8,6 +8,7 @@ import warnings
 import os
 import shutil
 import configparser
+import re
 warnings.filterwarnings("ignore")
 os.environ['PYTHONWARNINGS'] = 'ignore'
 from flask import Flask, request, render_template
@@ -161,6 +162,38 @@ def initialize_system():
         print(f"❌ Hiba az inicializálás során: {error}")
         return False
 
+def clean_wiki_text(text):
+    """
+    Wikipedia szöveg teljes tisztítása a legtisztább válasz érdekében
+    """
+    if not text:
+        return text
+
+    # 1. Link formátumok tisztítása
+    text = re.sub(r'\[\[([^|\]]+)\|([^\]]+)\]\]', r'\2', text)  # [[link|display]] -> display
+    text = re.sub(r'\[\[([^\]]+)\]\]', r'\1', text)            # [[link]] -> link
+
+    # 2. Template-ek eltávolítása
+    text = re.sub(r'\{\{[^}]+\}\}', '', text)
+
+    # 3. Referenciák eltávolítása
+    text = re.sub(r'<ref[^>]*>.*?</ref>', '', text, flags=re.DOTALL)
+    text = re.sub(r'<ref[^>]*\/>', '', text)
+
+    # 4. HTML tagek eltávolítása
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # 5. Wiki markup elemek
+    text = re.sub(r"'''([^']+)'''", r'\1', text)  # '''bold''' -> bold
+    text = re.sub(r"''([^']+)''", r'\1', text)    # ''italic'' -> italic
+
+    # 6. Szóközök és sorok rendezése
+    text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)  # Több üres sor -> dupla
+    text = re.sub(r' +', ' ', text)                 # Több szóköz -> egy
+    text = re.sub(r'\n ', '\n', text)               # Sorok eleji szóközök
+
+    return text.strip()
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     try:
@@ -169,38 +202,39 @@ def index():
             if not initialize_system():
                 return render_template('index.html', 
                                      question="", 
-                                     answer="❌ Hiba: Nem sikerült inicializálni a rendszert",
+                                     clean_answer="❌ Hiba: Nem sikerült inicializálni a rendszert",
                                      error=True)
             app._initialized = True
 
-        answer = None
+        # Változók inicializálása
         question = ""
+        clean_answer = ""  # Ez fontos!
 
         if request.method == 'POST':
             question = request.form.get('question', '').strip()
-
             if question:
                 try:
                     print(f"🔍 Kérdés: {question}")
-
                     embedder = get_embedder()
                     results = embedder.query(question)
-
                     print("🤖 Válasz generálása...")
                     prompt = build_prompt(results, question)
-                    answer = run_mistral(prompt)
-
+                    raw_answer = run_mistral(prompt)
+                    clean_answer = clean_wiki_text(raw_answer)  # Itt használod a tisztító függvényt
+                    print(f"✅ Tisztított válasz: {clean_answer[:100]}...")  # Debug log
                 except Exception as error:
                     print(f"❌ Hiba a kérdés feldolgozása során: {error}")
-                    answer = f"❌ Hiba történt: {str(error)}"
+                    clean_answer = f"❌ Hiba történt: {str(error)}"
+            else:
+                clean_answer = "Kérlek, adj meg egy kérdést!"
 
-        return render_template('index.html', question=question, answer=answer)
+        return render_template('index.html', question=question, clean_answer=clean_answer)
 
     except Exception as error:
         print(f"❌ Általános hiba: {error}")
         return render_template('index.html', 
                              question="", 
-                             answer=f"❌ Rendszerhiba: {str(error)}",
+                             clean_answer=f"❌ Rendszerhiba: {str(error)}",
                              error=True)
 
 @app.route('/refresh', methods=['POST'])
@@ -210,14 +244,14 @@ def refresh_data():
         print("🔄 Manuális cache törlés...")
         clear_cache()
         auto_fetch_from_config()
-        
+
         # Rendszer újrainicializálása
         if hasattr(app, '_initialized'):
             delattr(app, '_initialized')
-        
+
         return {"status": "success", "message": "Adatok frissítve!"}
-    except Exception as e:
-        return {"status": "error", "message": f"Hiba: {str(e)}"}
+    except Exception as error:
+        return {"status": "error", "message": f"Hiba: {str(error)}"}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -12,13 +12,14 @@
         <input type="text" id="question" name="question" value="{{ question }}" size="80"><br><br>
         <button type="submit">Küldés</button>
     </form>
+    <hr>
 
-    <article>
     {% if answer %}
-    <h2>Válasz:</h2>
-    <p>{{ answer.replace('\n', '<br>')|safe }}</p>
-    {% endif %}
+    <article>
+        <h2>Válasz:</h2>
+        <p>{{ answer.replace('\n', '<br>')|safe }}</p>
     </article>
+    {% endif %}
     
 </body>
 </html>
