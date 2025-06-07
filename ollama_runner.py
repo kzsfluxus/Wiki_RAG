@@ -8,28 +8,23 @@ import subprocess
 
 def stop_ollama_model(model_name="mistral"):
     """
-    Ollama modell graceful leállítása
+    Ollama processek tisztítása
     """
     try:
-        # Ez a helyes megközelítés!
         result = subprocess.run(
             ['ollama', 'stop', model_name],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=30  # Timeout hozzáadása
         )
         if result.returncode == 0:
-            print(f"✅ {model_name} modell sikeresen leállítva.")
-            return True
+            print("✅ A Mistral modell futtatása sikeresen leállítva.")
+            return result.stdout.decode()
         else:
-            print(f"⚠️ Ollama stop hiba: {result.stderr.decode()}")
-            return False
-    except subprocess.TimeoutExpired:
-        print("⏰ Ollama stop timeout")
-        return False
+            print(f"Ollama hiba: {result.stderr.decode()}")
+            return "Hiba történt a modell leállításakor."
     except Exception as error:
-        print(f"❌ Subprocess hiba: {error}")
-        return False
+         print(f"Subprocess hiba: {error}")
+         return "Hiba történt a modell leállításakor."
 
 def run_ollama_model(prompt, model_name="mistral"):
     try:

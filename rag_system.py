@@ -83,12 +83,11 @@ class RAGSystem:
 
     def _cleanup_handler(self):
         """Cleanup handler - ollama processek leállítása"""
-    try:
-        logger.info("🧹 RAG System cleanup...")
-        stop_ollama_model()  # A default "mistral" modellt állítja le
-        logger.info("✅ Ollama modell cleanup befejezve")
-    except Exception as e:
-        logger.warning(f"⚠️  Cleanup handler hiba: {e}")
+        try:
+            stop_ollama_model()
+        except Exception as e:
+            logger.warning(f"⚠️  Cleanup handler hiba: {e}")
+
 
     @property
     def is_initialized(self) -> bool:
