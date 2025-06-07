@@ -15,6 +15,7 @@ import configparser
 WIKI_FILE = 'data/wiki_pages.json'
 CONFIG_FILE = 'wiki_rag.conf'
 
+
 def clear_cache():
     """Törli a cache-elt adatokat és indexeket"""
     try:
@@ -34,6 +35,7 @@ def clear_cache():
     except Exception as error:
         print(f"❌ Hiba cache törlése közben: {error}")
         return False
+
 
 def should_refresh_data():
     """Ellenőrzi, hogy szükséges-e az adatok frissítése"""
@@ -56,23 +58,27 @@ def should_refresh_data():
             print("🔄 Konfiguráció újabb mint az adat, frissítés szükséges")
             return True
 
-        # Ellenőrizzük, hogy a wiki fájlban tényleg a config szerinti város van-e
-        with open(WIKI_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        # Ellenőrizzük, hogy a wiki fájlban tényleg a config szerinti város
+        # van-e
+        with open(WIKI_FILE, 'r', encoding='utf-8') as file:
+            data = json.load(file)
 
         # Config-ból olvassuk ki, hogy mit kellene tartalmaznia
         config = configparser.ConfigParser()
         config.read(CONFIG_FILE)
 
         if config.has_section('selected'):
-            expected_pages = config.get('selected', 'pages', fallback='').strip()
-            expected_titles = [p.strip() for p in expected_pages.split(',') if p.strip()]
+            expected_pages = config.get(
+                'selected', 'pages', fallback='').strip()
+            expected_titles = [p.strip()
+                               for p in expected_pages.split(',') if p.strip()]
 
             # Ellenőrizzük, hogy a várt oldalak szerepelnek-e
             actual_titles = [doc.get('title', '') for doc in data]
 
             for expected in expected_titles:
-                if not any(expected.lower() in title.lower() for title in actual_titles):
+                if not any(expected.lower() in title.lower()
+                           for title in actual_titles):
                     print(f"⚠️ Hiányzó oldal az adatokból: {expected}")
                     return True
 
@@ -81,6 +87,7 @@ def should_refresh_data():
         return False
 
     return False
+
 
 def load_docs():
     with open(WIKI_FILE, 'r', encoding='utf-8') as file:

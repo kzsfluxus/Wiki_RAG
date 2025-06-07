@@ -13,8 +13,9 @@ import logging
 warnings.filterwarnings("ignore")
 os.environ['PYTHONWARNINGS'] = 'ignore'
 
-from flask import Flask, request, render_template, jsonify
 from rag_system import RAGSystem, RAGInitializationError, RAGQueryError
+from flask import Flask, request, render_template, jsonify
+
 
 # Logging beállítása
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +55,7 @@ def index():
 
         if request.method == 'POST':
             question = request.form.get('question', '').strip()
-            
+
             if question:
                 try:
                     clean_answer = rag_system.process_question(question)
@@ -69,17 +70,17 @@ def index():
             else:
                 clean_answer = "Kérlek, adj meg egy kérdést!"
 
-        return render_template('index.html', 
-                             question=question, 
-                             clean_answer=clean_answer,
-                             error=error)
+        return render_template('index.html',
+                               question=question,
+                               clean_answer=clean_answer,
+                               error=error)
 
     except Exception as error:
         logger.error(f"❌ Route hiba: {error}")
-        return render_template('index.html', 
-                             question="", 
-                             clean_answer=f"❌ Rendszerhiba: {str(error)}",
-                             error=True)
+        return render_template('index.html',
+                               question="",
+                               clean_answer=f"❌ Rendszerhiba: {str(error)}",
+                               error=True)
 
 
 @app.route('/refresh', methods=['POST'])
@@ -87,24 +88,24 @@ def refresh_data():
     """Manuális adatfrissítés végpont"""
     try:
         logger.info("🔄 Manuális adatfrissítés kezdeményezve...")
-        
+
         if rag_system.refresh_data():
             logger.info("✅ Adatfrissítés sikeres")
             return jsonify({
-                "status": "success", 
+                "status": "success",
                 "message": "Adatok sikeresen frissítve!"
             })
         else:
             logger.error("❌ Adatfrissítés sikertelen")
             return jsonify({
-                "status": "error", 
+                "status": "error",
                 "message": "Adatok frissítése sikertelen!"
             }), 500
-            
+
     except Exception as error:
         logger.error(f"❌ Refresh hiba: {error}")
         return jsonify({
-            "status": "error", 
+            "status": "error",
             "message": f"Hiba történt: {str(error)}"
         }), 500
 
@@ -116,33 +117,34 @@ def api_ask():
         # Lazy initialization
         if not rag_system.is_initialized:
             initialize_app()
-            
+
         # JSON kérés ellenőrzése
         if not request.is_json:
-            return jsonify({"error": "Content-Type must be application/json"}), 400
-        
+            return jsonify(
+                {"error": "Content-Type must be application/json"}), 400
+
         data = request.get_json()
         question = data.get('question', '').strip()
-        
+
         if not question:
             return jsonify({"error": "Nincs kérdés megadva"}), 400
-        
+
         # Kérdés feldolgozása
         answer = rag_system.process_question(question)
-        
+
         return jsonify({
             "question": question,
             "answer": answer,
             "status": "success"
         })
-        
+
     except RAGQueryError as rag_error:
         logger.error(f"❌ API RAG hiba: {rag_error}")
         return jsonify({
             "error": str(rag_error),
             "status": "rag_error"
         }), 500
-        
+
     except Exception as error:
         logger.error(f"❌ API általános hiba: {error}")
         return jsonify({
@@ -158,15 +160,15 @@ def health_check():
         # Lazy initialization
         if not rag_system.is_initialized:
             initialize_app()
-            
+
         system_info = rag_system.get_system_info()
-        
+
         return jsonify({
             "status": "healthy" if system_info["initialized"] else "initializing",
             "system_info": system_info,
             "timestamp": Path(__file__).stat().st_mtime
         })
-        
+
     except Exception as error:
         logger.error(f"❌ Health check hiba: {error}")
         return jsonify({
@@ -182,18 +184,19 @@ def system_status():
         # Lazy initialization
         if not rag_system.is_initialized:
             initialize_app()
-            
+
         info = rag_system.get_system_info()
-        
+
         return jsonify({
             "initialized": info["initialized"],
             "documents_count": info["documents_loaded"],
             "embedder_ready": info["embedder_ready"],
             "index_exists": info["index_exists"],
             "wiki_file_exists": info["wiki_file_exists"],
-            "document_titles": info.get("document_titles", [])[:10]  # Max 10 cím
+            # Max 10 cím
+            "document_titles": info.get("document_titles", [])[:10]
         })
-        
+
     except Exception as error:
         logger.error(f"❌ Status check hiba: {error}")
         return jsonify({"error": str(error)}), 500
@@ -217,7 +220,7 @@ if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', 5000))
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
-    
+
     logger.info(f"🌐 Flask szerver indítása: {host}:{port} (debug={debug})")
-    
+
     app.run(debug=debug, host=host, port=port)

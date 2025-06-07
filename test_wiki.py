@@ -27,14 +27,14 @@ else:
 [wiki]
 url = hu.wikipedia.org
 path = /w/
-username = 
-password = 
+username =
+password =
 
 [selected]
 pages = Magyarország, Budapest, Debrecen
 
 [related]
-root = 
+root =
 limit = 50
     """)
 
@@ -81,4 +81,5 @@ except Exception as e:
 if Path(wiki_file).exists():
     print(f"✅ Wiki fájl most már létezik: {wiki_file}")
 else:
-    print(f"❌ Wiki fájl még mindig hiányzik: {wiki_file}")# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
+    print(f"❌ Wiki fájl még mindig hiányzik: {wiki_file}")

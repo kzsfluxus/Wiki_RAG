@@ -5,6 +5,12 @@ RAG System - Közös osztály a CLI és Flask alkalmazásokhoz
 Created on Thu Jun  6 15:31:49 2025
 @author: zsolt
 """
+from docs_loader import clear_cache, should_refresh_data, load_docs, WIKI_FILE
+from prompt_builder import build_prompt
+from text_cleaner import clean_wiki_text
+from retriever import auto_fetch_from_config
+from ollama_runner import run_ollama_model, stop_ollama_model
+from embedder import Embedder
 import warnings
 import os
 import atexit
@@ -17,12 +23,6 @@ import logging
 warnings.filterwarnings("ignore")
 os.environ['PYTHONWARNINGS'] = 'ignore'
 
-from embedder import Embedder
-from ollama_runner import run_ollama_model, stop_ollama_model
-from retriever import auto_fetch_from_config
-from text_cleaner import clean_wiki_text
-from prompt_builder import build_prompt
-from docs_loader import clear_cache, should_refresh_data, load_docs, WIKI_FILE
 
 # Logging beállítása
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +44,7 @@ class RAGSystem:
     Wiki RAG rendszer központi osztálya
     Kezeli az adatok betöltését, indexelését és a kérdések feldolgozását
     """
-    
+
     def __init__(self):
         self._docs = None
         self._embedder = None
@@ -52,7 +52,7 @@ class RAGSystem:
         self._last_config_check = 0
         self._cleanup_registered = False
         logger.info("🚀 RAG System objektum létrehozva")
-        
+
         # Cleanup regisztrálása egyszer
         self._register_cleanup()
 
@@ -63,15 +63,18 @@ class RAGSystem:
         if not self._cleanup_registered:
             # Atexit cleanup regisztrálása
             atexit.register(self._cleanup_handler)
-            
+
             # Signal handlerek regisztrálása
             try:
                 signal.signal(signal.SIGINT, self._signal_handler)   # Ctrl+C
-                signal.signal(signal.SIGTERM, self._signal_handler)  # Termination
+                signal.signal(
+                    signal.SIGTERM,
+                    self._signal_handler)  # Termination
             except ValueError:
                 # Előfordulhat hogy már regisztrálva van vagy nem támogatott
-                logger.debug("Signal handlerek regisztrálása sikertelen (nem kritikus)")
-            
+                logger.debug(
+                    "Signal handlerek regisztrálása sikertelen (nem kritikus)")
+
             self._cleanup_registered = True
             logger.debug("🛡️  Cleanup handlerek regisztrálva")
 
@@ -88,7 +91,6 @@ class RAGSystem:
         except Exception as e:
             logger.warning(f"⚠️  Cleanup handler hiba: {e}")
 
-
     @property
     def is_initialized(self) -> bool:
         """Visszaadja, hogy a rendszer inicializálva van-e"""
@@ -97,7 +99,7 @@ class RAGSystem:
     def _check_and_refresh_data(self) -> bool:
         """
         Ellenőrzi és frissíti az adatokat ha szükséges
-        
+
         Returns:
             bool: True ha sikerült, False ha hiba történt
         """
@@ -121,17 +123,18 @@ class RAGSystem:
     def _load_documents(self) -> bool:
         """
         Dokumentumok betöltése
-        
+
         Returns:
             bool: True ha sikerült, False ha hiba történt
         """
         try:
             self._docs = load_docs()
             logger.info(f"📚 Betöltve: {len(self._docs)} dokumentum")
-            
+
             # Kiírjuk, hogy milyen oldalakat tartalmaz
             titles = [doc.get('title', 'Névtelen') for doc in self._docs]
-            logger.info(f"📄 Oldalak: {', '.join(titles[:5])}{'...' if len(titles) > 5 else ''}")
+            logger.info(
+                f"📄 Oldalak: {', '.join(titles[:5])}{'...' if len(titles) > 5 else ''}")
             return True
         except Exception as error:
             logger.error(f"❌ Hiba az adatok betöltése közben: {error}")
@@ -140,7 +143,7 @@ class RAGSystem:
     def _initialize_embedder(self) -> bool:
         """
         Embedder inicializálása és index betöltése/építése
-        
+
         Returns:
             bool: True ha sikerült, False ha hiba történt
         """
@@ -154,7 +157,8 @@ class RAGSystem:
             else:
                 logger.info("🔨 Index építése...")
                 if self._docs is None:
-                    logger.error("❌ Nincs betöltött dokumentum az index építéshez!")
+                    logger.error(
+                        "❌ Nincs betöltött dokumentum az index építéshez!")
                     return False
                 self._embedder.build_index(self._docs)
                 self._embedder.save()
@@ -167,10 +171,10 @@ class RAGSystem:
     def initialize(self) -> bool:
         """
         Teljes rendszer inicializálása
-        
+
         Returns:
             bool: True ha sikerült, False ha hiba történt
-            
+
         Raises:
             RAGInitializationError: Ha kritikus hiba történt
         """
@@ -183,11 +187,13 @@ class RAGSystem:
 
             # Dokumentumok betöltése
             if not self._load_documents():
-                raise RAGInitializationError("Dokumentumok betöltése sikertelen")
+                raise RAGInitializationError(
+                    "Dokumentumok betöltése sikertelen")
 
             # Embedder inicializálása
             if not self._initialize_embedder():
-                raise RAGInitializationError("Embedder inicializálása sikertelen")
+                raise RAGInitializationError(
+                    "Embedder inicializálása sikertelen")
 
             self._initialized = True
             logger.info("🎯 RAG rendszer kész!")
@@ -202,23 +208,23 @@ class RAGSystem:
     def refresh_data(self) -> bool:
         """
         Manuális adatfrissítés és újrainicializálás
-        
+
         Returns:
             bool: True ha sikerült, False ha hiba történt
         """
         try:
             logger.info("🔄 Manuális adatfrissítés...")
-            
+
             # Cache törlése
             clear_cache()
-            
+
             # Reinicializálás
             self._initialized = False
             self._docs = None
             self._embedder = None
-            
+
             return self.initialize()
-            
+
         except Exception as error:
             logger.error(f"❌ Hiba az adatfrissítés során: {error}")
             return False
@@ -226,13 +232,13 @@ class RAGSystem:
     def process_question(self, question: str) -> str:
         """
         Kérdés feldolgozása és válasz generálása
-        
+
         Args:
             question (str): A felhasználó kérdése
-            
+
         Returns:
             str: A tisztított válasz
-            
+
         Raises:
             RAGQueryError: Ha hiba történt a feldolgozás során
         """
@@ -254,11 +260,11 @@ class RAGSystem:
             logger.info("🤖 Válasz generálása...")
             prompt = build_prompt(results, question)
             raw_answer = run_ollama_model(prompt)
-            
+
             # Válasz tisztítása
             clean_answer = clean_wiki_text(raw_answer)
             logger.info(f"✅ Válasz generálva: {len(clean_answer)} karakter")
-            
+
             return clean_answer
 
         except Exception as error:
@@ -268,7 +274,7 @@ class RAGSystem:
     def get_system_info(self) -> Dict[str, Any]:
         """
         Rendszer információk lekérdezése
-        
+
         Returns:
             Dict[str, Any]: Rendszer állapot információk
         """
@@ -280,10 +286,11 @@ class RAGSystem:
             "wiki_file_exists": Path(WIKI_FILE).exists(),
             "cleanup_registered": self._cleanup_registered
         }
-        
+
         if self._docs:
-            info["document_titles"] = [doc.get('title', 'Névtelen') for doc in self._docs]
-            
+            info["document_titles"] = [
+                doc.get('title', 'Névtelen') for doc in self._docs]
+
         return info
 
     def __enter__(self):

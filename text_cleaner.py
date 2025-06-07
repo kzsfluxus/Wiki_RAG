@@ -7,6 +7,7 @@ Created on Fri Jun  6 14:20:01 2025
 """
 import re
 
+
 def clean_wiki_text(text):
     """
     Wikipedia szöveg teljes tisztítása a legtisztább válasz érdekében
@@ -15,8 +16,12 @@ def clean_wiki_text(text):
         return text
 
     # 1. Link formátumok tisztítása
-    text = re.sub(r'\[\[([^|\]]+)\|([^\]]+)\]\]', r'\2', text)  # [[link|display]] -> display
-    text = re.sub(r'\[\[([^\]]+)\]\]', r'\1', text)            # [[link]] -> link
+    text = re.sub(r'\[\[([^|\]]+)\|([^\]]+)\]\]', r'\2',
+                  text)  # [[link|display]] -> display
+    text = re.sub(
+        r'\[\[([^\]]+)\]\]',
+        r'\1',
+        text)            # [[link]] -> link
 
     # 2. Template-ek eltávolítása
     text = re.sub(r'\{\{[^}]+\}\}', '', text)

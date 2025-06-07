@@ -6,6 +6,7 @@ Created on Thu Jun  5 15:33:22 2025
 """
 import subprocess
 
+
 def stop_ollama_model(model_name="mistral"):
     """
     Ollama processek tisztítása
@@ -23,8 +24,9 @@ def stop_ollama_model(model_name="mistral"):
             print(f"Ollama hiba: {result.stderr.decode()}")
             return "Hiba történt a modell leállításakor."
     except Exception as error:
-         print(f"Subprocess hiba: {error}")
-         return "Hiba történt a modell leállításakor."
+        print(f"Subprocess hiba: {error}")
+        return "Hiba történt a modell leállításakor."
+
 
 def run_ollama_model(prompt, model_name="mistral"):
     """
