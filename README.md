@@ -51,10 +51,10 @@ username =              # Felhasználónév, amennyiben szükséges
 password =              # Jelszó
 
 [selected]
-pages = Pest vármegye   # Letöltendő oldal(ak)
+pages = Spanyolország   # Letöltendő oldal(ak)
 
 [related]
-root = Budapest         # További Budapesttel kapcsolatos oldalak
+root = Madrid           # További Madriddal kapcsolatos oldalak
 limit = 50              # Letöltött oldalak maximális száma
 ```
 ## Képernyőképek
