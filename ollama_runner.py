@@ -27,6 +27,9 @@ def stop_ollama_model(model_name="mistral"):
          return "Hiba történt a modell leállításakor."
 
 def run_ollama_model(prompt, model_name="mistral"):
+    """
+    Ollama model indítása
+    """
     try:
         result = subprocess.run(
             ['ollama', 'run', model_name],

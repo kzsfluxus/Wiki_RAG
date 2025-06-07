@@ -5,7 +5,7 @@ Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lok
 ## ✨ Főbb jellemzők
 
 - 🕸️ MediaWiki-oldalak lekérdezése `mwclient` használatával
-- 🧠 Embedding generálás lokálisan futó Mistral modellel (Ollama)
+- 🧠 Embedding generálás `paraphrase-multilingual-MiniLM-L12-v2` modellel 
 - ⚡ FAISS-alapú keresés
 - 🌐 Flask-alapú webes keresőfelület 
 
