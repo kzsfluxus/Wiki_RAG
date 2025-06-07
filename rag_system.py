@@ -51,6 +51,7 @@ class RAGSystem:
         self._initialized = False
         self._last_config_check = 0
         self._cleanup_registered = False
+        self._cleanup_executed = False
         logger.info("🚀 RAG System objektum létrehozva")
 
         # Cleanup regisztrálása egyszer
@@ -86,6 +87,10 @@ class RAGSystem:
 
     def _cleanup_handler(self):
         """Cleanup handler - ollama processek leállítása"""
+        if self._cleanup_executed:  # Dupla futás elkerülése
+            return
+       
+        self._cleanup_executed = True  # Flag beállítása
         try:
             stop_ollama_model()
         except Exception as e:
