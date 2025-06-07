@@ -7,15 +7,18 @@ Created on Thu Jun  6 15:31:49 2025
 """
 import warnings
 import os
+import atexit
+import signal
+import sys
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import logging
 
 warnings.filterwarnings("ignore")
 os.environ['PYTHONWARNINGS'] = 'ignore'
 
 from embedder import Embedder
-from ollama_runner import run_ollama_model
+from ollama_runner import run_ollama_model, stop_ollama_model
 from retriever import auto_fetch_from_config
 from text_cleaner import clean_wiki_text
 from prompt_builder import build_prompt
@@ -47,7 +50,43 @@ class RAGSystem:
         self._embedder = None
         self._initialized = False
         self._last_config_check = 0
+        self._cleanup_registered = False
         logger.info("🚀 RAG System objektum létrehozva")
+        
+        # Cleanup regisztrálása egyszer
+        self._register_cleanup()
+
+    def _register_cleanup(self):
+        """
+        Cleanup funkciók regisztrálása program kilépéskor
+        """
+        if not self._cleanup_registered:
+            # Atexit cleanup regisztrálása
+            atexit.register(self._cleanup_handler)
+            
+            # Signal handlerek regisztrálása
+            try:
+                signal.signal(signal.SIGINT, self._signal_handler)   # Ctrl+C
+                signal.signal(signal.SIGTERM, self._signal_handler)  # Termination
+            except ValueError:
+                # Előfordulhat hogy már regisztrálva van vagy nem támogatott
+                logger.debug("Signal handlerek regisztrálása sikertelen (nem kritikus)")
+            
+            self._cleanup_registered = True
+            logger.debug("🛡️  Cleanup handlerek regisztrálva")
+
+    def _signal_handler(self, signum, frame):
+        """Signal handler a program megszakításához"""
+        logger.info(f"🛑 Signal fogadva: {signum}")
+        self._cleanup_handler()
+        sys.exit(0)
+
+    def _cleanup_handler(self):
+        """Cleanup handler - ollama processek leállítása"""
+        try:
+            stop_ollama_model()
+        except Exception as e:
+            logger.warning(f"⚠️  Cleanup handler hiba: {e}")
 
     @property
     def is_initialized(self) -> bool:
@@ -237,7 +276,8 @@ class RAGSystem:
             "documents_loaded": len(self._docs) if self._docs else 0,
             "embedder_ready": self._embedder is not None,
             "index_exists": Path('data/index.faiss').exists(),
-            "wiki_file_exists": Path(WIKI_FILE).exists()
+            "wiki_file_exists": Path(WIKI_FILE).exists(),
+            "cleanup_registered": self._cleanup_registered
         }
         
         if self._docs:
@@ -253,4 +293,5 @@ class RAGSystem:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager cleanup"""
-        pass  # Jelenleg nincs specifikus cleanup szükséges
+        logger.info("🧹 RAG System context manager cleanup...")
+        self._cleanup_handler()
