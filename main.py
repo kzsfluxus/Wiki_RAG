@@ -5,14 +5,14 @@ CLI Interface for Wiki RAG System
 Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
 """
+import logging
+import sys
 from rag_system import RAGSystem, RAGInitializationError, RAGQueryError
 import warnings
 import os
-import sys
-import logging
+os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
 
-warnings.filterwarnings("ignore")
-os.environ['PYTHONWARNINGS'] = 'ignore'
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 # Logging beállítása CLI módhoz

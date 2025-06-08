@@ -11,8 +11,6 @@ from text_cleaner import clean_wiki_text
 from retriever import auto_fetch_from_config
 from ollama_runner import run_ollama_model, stop_ollama_model
 from embedder import Embedder
-import warnings
-import os
 import atexit
 import signal
 import sys
@@ -20,12 +18,6 @@ from pathlib import Path
 from typing import Dict, Any
 import logging
 
-warnings.filterwarnings("ignore")
-os.environ['PYTHONWARNINGS'] = 'ignore'
-
-
-# Logging beállítása
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -89,7 +81,7 @@ class RAGSystem:
         """Cleanup handler - ollama processek leállítása"""
         if self._cleanup_executed:  # Dupla futás elkerülése
             return
-       
+
         self._cleanup_executed = True  # Flag beállítása
         try:
             stop_ollama_model()

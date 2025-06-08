@@ -2,38 +2,35 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jun  6 22:38:55 2025
-
 @author: zsolt
 """
-
 import os
 import json
 from pathlib import Path
 import shutil
 import configparser
+import logging
 
-WIKI_FILE = 'data/wiki_pages.json'
-CONFIG_FILE = 'wiki_rag.conf'
+logger = logging.getLogger(__name__)
+
+WIKI_FILE = Path('data/wiki_pages.json')
+CONFIG_FILE = Path('wiki_rag.conf')
 
 
 def clear_cache():
     """Törli a cache-elt adatokat és indexeket"""
     try:
-        # Data könyvtár törlése
-        if os.path.exists('data'):
-            shutil.rmtree('data')
-            print("🗑️ Cache törölve (data könyvtár)")
+        data_dir = Path('data')
 
-        # FAISS index törlése
-        faiss_files = ['data/index.faiss', 'data/index.pkl']
-        for file in faiss_files:
-            if os.path.exists(file):
-                os.remove(file)
-                print(f"🗑️ Index fájl törölve: {file}")
+        # Ha létezik a data könyvtár, töröljük az egészet
+        if data_dir.exists():
+            shutil.rmtree(data_dir)
+            logger.info("Cache törölve (data könyvtár)")
 
+        logger.info("Cache sikeresen törölve")
         return True
     except Exception as error:
-        print(f"❌ Hiba cache törlése közben: {error}")
+        logger.error("Hiba cache törlése közben: %s", error)
         return False
 
 
@@ -41,11 +38,13 @@ def should_refresh_data():
     """Ellenőrzi, hogy szükséges-e az adatok frissítése"""
     # Ha nincs wiki fájl, frissíteni kell
     if not Path(WIKI_FILE).exists():
-        print("ℹ️ Nincs wiki adat, letöltés szükséges")
+        logger.info("Nincs wiki adat, letöltés szükséges")
         return True
 
     # Ha nincs config fájl, nem tudjuk ellenőrizni
     if not Path(CONFIG_FILE).exists():
+        logger.debug(
+            "Nincs config fájl, nem ellenőrizhető a frissítés szükségessége")
         return False
 
     try:
@@ -55,7 +54,7 @@ def should_refresh_data():
 
         # Ha a config újabb, mint a wiki adat, frissíteni kell
         if config_mtime > wiki_mtime:
-            print("🔄 Konfiguráció újabb mint az adat, frissítés szükséges")
+            logger.info("Konfiguráció újabb mint az adat, frissítés szükséges")
             return True
 
         # Ellenőrizzük, hogy a wiki fájlban tényleg a config szerinti város
@@ -75,20 +74,32 @@ def should_refresh_data():
 
             # Ellenőrizzük, hogy a várt oldalak szerepelnek-e
             actual_titles = [doc.get('title', '') for doc in data]
-
             for expected in expected_titles:
                 if not any(expected.lower() in title.lower()
                            for title in actual_titles):
-                    print(f"⚠️ Hiányzó oldal az adatokból: {expected}")
+                    logger.warning("Hiányzó oldal az adatokból: %s", expected)
                     return True
 
+        logger.debug("Adatok frissítése nem szükséges")
+
     except Exception as error:
-        print(f"⚠️ Nem sikerült ellenőrizni az adatok frissességét: {error}")
+        logger.warning(
+            "Nem sikerült ellenőrizni az adatok frissességét: %s",
+            error)
         return False
 
     return False
 
 
 def load_docs():
-    with open(WIKI_FILE, 'r', encoding='utf-8') as file:
-        return json.load(file)
+    """Wiki dokumentumok betöltése"""
+    try:
+        with open(WIKI_FILE, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        logger.debug(
+            "Wiki dokumentumok sikeresen betöltve: %d dokumentum",
+            len(data))
+        return data
+    except Exception as error:
+        logger.error("Hiba wiki dokumentumok betöltése közben: %s", error)
+        raise
