@@ -21,7 +21,9 @@ def test_index_get(mock_rag, client):
     mock_rag.is_initialized = True
     response = client.get('/')
     assert response.status_code == 200
-    assert b"clean_answer" in response.data or b"Kérlek" in response.data
+    text = response.data.decode("utf-8")
+    assert "<form" in text
+    assert "Kérdés" in text
 
 @patch('app.rag_system')
 def test_index_post_valid(mock_rag, client):
@@ -29,7 +31,8 @@ def test_index_post_valid(mock_rag, client):
     mock_rag.process_question.return_value = "Ez egy válasz."
     response = client.post('/', data={'question': 'Mi az a RAG?'})
     assert response.status_code == 200
-    assert b"Ez egy válasz." in response.data
+    text = response.data.decode("utf-8")
+    assert "Ez egy válasz." in text
 
 @patch('app.rag_system')
 def test_api_ask_success(mock_rag, client):
