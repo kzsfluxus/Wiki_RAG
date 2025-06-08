@@ -21,10 +21,12 @@ import os
 os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+from pathlib import Path
+import logging
 from flask import Flask, request, render_template, jsonify
 from rag_system import RAGSystem, RAGInitializationError, RAGQueryError
-import logging
-from pathlib import Path
+
+
 
 
 # Logging beállítása
@@ -105,12 +107,12 @@ def refresh_data():
                 "status": "success",
                 "message": "Adatok sikeresen frissítve!"
             })
-        else:
-            logger.error("❌ Adatfrissítés sikertelen")
-            return jsonify({
-                "status": "error",
-                "message": "Adatok frissítése sikertelen!"
-            }), 500
+
+        logger.error("❌ Adatfrissítés sikertelen")
+        return jsonify({
+            "status": "error",
+            "message": "Adatok frissítése sikertelen!"
+        }), 500
 
     except Exception as error:
         logger.error(f"❌ Refresh hiba: {error}")

@@ -11,11 +11,12 @@ os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 import logging
+import json
+from pathlib import Path
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
-import json
-from pathlib import Path
+
 
 logger = logging.getLogger(__name__)
 

@@ -47,9 +47,9 @@ def run_ollama_model(prompt, model_name="mistral"):
         if result.returncode == 0:
             logger.info("Ollama modell sikeresen lefutott: %s", model_name)
             return result.stdout.decode()
-        else:
-            logger.error("Ollama hiba: %s", result.stderr.decode())
-            return "Hiba történt a modell futtatásakor."
+
+        logger.error("Ollama hiba: %s", result.stderr.decode())
+        return "Hiba történt a modell futtatásakor."
     except subprocess.TimeoutExpired:
         logger.warning(
             "Timeout - a modell túl sokáig nem válaszolt (%s)",
@@ -82,11 +82,9 @@ def stop_ollama_model(model_name="mistral"):
                 "A %s modell futtatása sikeresen leállítva",
                 model_name)
             return result.stdout.decode()
-        else:
-            logger.error("Ollama hiba: %s", result.stderr.decode())
-            return "Hiba történt a modell leállításakor."
+
+        logger.error("Ollama hiba: %s", result.stderr.decode())
+        return "Hiba történt a modell leállításakor."
     except Exception as error:
         logger.error("Subprocess hiba: %s", error)
         return "Hiba történt a modell leállításakor."
-
-

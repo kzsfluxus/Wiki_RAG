@@ -111,8 +111,8 @@ class RAGSystem:
         self._cleanup_executed = True  # Flag beállítása
         try:
             stop_ollama_model()
-        except Exception as e:
-            logger.warning(f"⚠️  Cleanup handler hiba: {e}")
+        except Exception as error:
+            logger.warning(f"⚠️  Cleanup handler hiba: {error}")
 
     @property
     def is_initialized(self) -> bool:

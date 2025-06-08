@@ -13,12 +13,12 @@ Ez a modul MediaWiki alapú wiki oldalak letöltésére szolgál különböző m
 - Konfigurációs fájl alapú automatikus letöltés
 """
 
-import mwclient
 import os
 import json
 from pathlib import Path
 import configparser
 import logging
+import mwclient
 
 logger = logging.getLogger(__name__)
 
