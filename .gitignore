@@ -1,5 +1,6 @@
 .venv
 __pycache__
 .spyproject
+.coverage
 data/wiki_pages.json
 data/index.faiss
