@@ -3,39 +3,37 @@
 """
 Created on Thu Jun  5 15:33:22 2025
 @author: zsolt
+
+Ez a modul az Ollama parancssori eszköz automatizált futtatására és 
+kezelésére szolgál.
+Lehetővé teszi különböző Ollama modellek indítását és leállítását Python kódból, 
+programozott módon.
+A modul főként alacsony szintű futtatási hibák és folyamat-kimenetek kezelésében 
+segít, naplózással támogatva.
+
+Fő funkciók:
+    - run_ollama_model: Egy tetszőleges szöveges promptot futtat le a megadott Ollama modellen.
+    - stop_ollama_model: Egy futó Ollama modell folyamatát állítja le.
 """
 import subprocess
 import logging
 
 logger = logging.getLogger(__name__)
 
-
-def stop_ollama_model(model_name="mistral"):
-    """
-    Ollama model leállítása
-    """
-    try:
-        result = subprocess.run(
-            ['ollama', 'stop', model_name],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if result.returncode == 0:
-            logger.info(
-                "A %s modell futtatása sikeresen leállítva",
-                model_name)
-            return result.stdout.decode()
-        else:
-            logger.error("Ollama hiba: %s", result.stderr.decode())
-            return "Hiba történt a modell leállításakor."
-    except Exception as error:
-        logger.error("Subprocess hiba: %s", error)
-        return "Hiba történt a modell leállításakor."
-
-
 def run_ollama_model(prompt, model_name="mistral"):
     """
-    Ollama model indítása
+    Futtat egy szöveges promptot a megadott Ollama modellen.
+
+    Args:
+        prompt (str): A bemeneti szöveg, amit a modellnek elküldünk.
+        model_name (str, optional): A futtatandó Ollama modell neve. Alapértelmezett: 'mistral'.
+
+    Returns:
+        str: A modell futtatásának eredménye (standard output),
+            vagy hibaüzenet, ha a folyamat sikertelen volt vagy timeout történt.
+
+    Raises:
+        subprocess.TimeoutExpired: Ha a modell futtatása 10 percen túl elhúzódik.
     """
     try:
         logger.debug("Ollama modell indítása: %s", model_name)
@@ -60,3 +58,35 @@ def run_ollama_model(prompt, model_name="mistral"):
     except Exception as error:
         logger.error("Subprocess hiba: %s", error)
         return "Hiba történt a modell hívásakor."
+
+def stop_ollama_model(model_name="mistral"):
+    """
+    Leállít egy futó Ollama modellt.
+
+    Args:
+        model_name (str, optional): A leállítandó Ollama modell neve. Alapértelmezett: 'mistral'.
+
+    Returns:
+        str: A leállítás eredménye (standard output),
+            vagy hibaüzenet, ha a folyamat sikertelen volt.
+
+    """
+    try:
+        result = subprocess.run(
+            ['ollama', 'stop', model_name],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if result.returncode == 0:
+            logger.info(
+                "A %s modell futtatása sikeresen leállítva",
+                model_name)
+            return result.stdout.decode()
+        else:
+            logger.error("Ollama hiba: %s", result.stderr.decode())
+            return "Hiba történt a modell leállításakor."
+    except Exception as error:
+        logger.error("Subprocess hiba: %s", error)
+        return "Hiba történt a modell leállításakor."
+
+

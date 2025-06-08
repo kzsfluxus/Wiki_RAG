@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Flask Web Interface for Wiki RAG System
+Flask Web Interface a Wiki RAG Systemhez
 Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
+
+Ez a modul egy Flask alapú webalkalmazás fő belépési pontja.
+
+Feladatai:
+- A Flask alkalmazás példányosítása és konfigurációja.
+- Az útvonalak (route-ok), nézetfüggvények és bővítmények (pl. adatbázis, authentikáció) inicializálása.
+- Az alkalmazás indítása fejlesztői vagy éles környezetben.
+
+Használat:
+    python app.py
+
+A modul közvetlen futtatás esetén elindítja a Flask szervert.
 """
 import os
 os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'

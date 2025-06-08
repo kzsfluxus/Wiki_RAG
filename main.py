@@ -4,6 +4,28 @@
 CLI Interface for Wiki RAG System
 Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
+
+Ez a modul parancssori (CLI) interfészt biztosít a Wiki RAG (Retrieval-Augmented Generation) rendszerhez.
+
+Feladatai:
+- A RAGSystem inicializálása, rendszerállapot kiírása, és az interaktív kérdés-válasz ciklus kezelése.
+- A felhasználó számára lehetőséget nyújt kérdések feltevésére, parancsok (help, status, refresh, quit) kiadására.
+- A kérdéseket továbbítja a RAGSystem felé, majd a kapott választ megjeleníti.
+- Kezeli a rendszer státuszát, az adatok frissítését, valamint a kilépési és hibakezelési folyamatokat.
+
+Fő funkciók:
+- Banner és súgó (help) kiírása.
+- Rendszer státuszának lekérdezése és megjelenítése.
+- Adatfrissítés indítása felhasználói kérésre.
+- Interaktív kérdés-válasz ciklus implementációja, parancsok felismerése.
+- A kritikus hibák és kivételek barátságos kezelése, illetve naplózása.
+
+Használat:
+    python main.py
+
+A program interaktív módban várja a felhasználói kérdéseket, és a RAGSystem-en keresztül generálja a válaszokat.
+Elérhető parancsok: help, status, refresh, quit/exit.
+
 """
 import os
 os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'

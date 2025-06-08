@@ -3,6 +3,17 @@
 """
 Created on Fri Jun  6 22:38:55 2025
 @author: zsolt
+
+A docs_loader modul felelős a dokumentációs adatok kezeléséért, betöltéséért 
+és a gyorsítótár (cache) műveleteiért.
+
+Főbb funkciók:
+- Dokumentációs gyorsítótár törlése.
+- Annak eldöntése, hogy szükséges-e az adatok frissítése.
+- Dokumentációs adatok betöltése tárolt fájlból.
+
+A modul segíti a dokumentáció naprakészen tartását, valamint optimalizálja az 
+adatbetöltést cache használatával.
 """
 import os
 import json
@@ -18,7 +29,12 @@ CONFIG_FILE = Path('wiki_rag.conf')
 
 
 def clear_cache():
-    """Törli a cache-elt adatokat és indexeket"""
+    """
+    Törli a dokumentációs gyorsítótárat.
+
+    Returns:
+        None
+    """
     try:
         data_dir = Path('data')
 
@@ -34,8 +50,13 @@ def clear_cache():
         return False
 
 
-def should_refresh_data():
-    """Ellenőrzi, hogy szükséges-e az adatok frissítése"""
+def should_refresh_data() -> bool:
+    """
+    Eldönti, hogy frissíteni kell-e az adatokat az utolsó betöltés alapján.
+    
+    Returns:
+        bool: Igaz, ha frissíteni kell, egyébként hamis.
+   """
     # Ha nincs wiki fájl, frissíteni kell
     if not Path(WIKI_FILE).exists():
         logger.info("Nincs wiki adat, letöltés szükséges")
@@ -91,8 +112,13 @@ def should_refresh_data():
     return False
 
 
-def load_docs():
-    """Wiki dokumentumok betöltése"""
+def load_docs() -> dict:
+    """
+    Betölti a dokumentációs adatokat a megadott útvonalról.
+
+    Returns:
+        dict: A betöltött dokumentációs adatok.
+    """
     try:
         with open(WIKI_FILE, 'r', encoding='utf-8') as file:
             data = json.load(file)

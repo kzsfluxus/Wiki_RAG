@@ -4,6 +4,32 @@
 RAG System - Közös osztály a CLI és Flask alkalmazásokhoz
 Created on Thu Jun  6 15:31:49 2025
 @author: zsolt
+
+Ez a modul a Wiki alapú RAG (Retrieval-Augmented Generation) rendszer központi 
+logikáját valósítja meg, mely közös háttérként szolgál mind CLI, mind Flask alkalmazások számára.
+
+Feladatai:
+- A szükséges adatok (wiki dokumentumok) letöltése, frissítése, gyorsítótár és embedder index kezelése.
+- Dokumentumok betöltése és indexelése embedding alapú kereséshez.
+- Releváns dokumentumok visszakeresése a felhasználói kérdésekhez.
+- Kérdésből végső választ generáló prompt összeállítása és LLM (Ollama) hívása.
+- A rendszer állapotának, inicializáltságának, betöltött dokumentumoknak és indexnek lekérdezése.
+- Különböző leállítási, cleanup és signal kezelési funkciók biztosítása, így az LLM processzek szabályos leállítása.
+
+Fő osztály:
+- `RAGSystem`:  
+    - Kezeli az adatok életciklusát (frissítés, betöltés, embedder index).
+    - API-t biztosít a kérdések feldolgozására, eredmények visszaadására, rendszerinformációk lekérdezésére.
+    - Külön kezeli a rendszer inicializálását, újraindítását és a hibakezelést (saját Exception típusokkal).
+    - Program leállításakor automatikusan elvégzi a szükséges takarítást (LLM processz leállítása).
+    - Közvetlenül vagy context manager-ként is használható.
+
+Kiemelt függvények/módszerek:
+- `initialize()`: Teljes rendszer inicializálása, adatfrissítés, dokumentum- és indexbetöltés.
+- `refresh_data()`: Manuális adatfrissítés, újrainicializálás.
+- `process_question(question)`: Felhasználói kérdés alapján releváns dokumentum keresése, prompt generálás, LLM hívás és válasz tisztítása.
+- `get_system_info()`: Részletes rendszerállapot-lekérdezés.
+- Cleanup, signal és context manager támogatás.
 """
 from docs_loader import clear_cache, should_refresh_data, load_docs, WIKI_FILE
 from prompt_builder import build_prompt
