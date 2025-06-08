@@ -6,18 +6,18 @@ Created on Thu Jun  5 15:31:49 2025
 
 Embedder modul dokumentum vektorok kezelésére és keresésére.
 """
+import os
+os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import logging
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 import json
 from pathlib import Path
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 
 logger = logging.getLogger(__name__)
-
 
 class Embedder:
     """

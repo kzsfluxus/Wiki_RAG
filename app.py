@@ -5,15 +5,14 @@ Flask Web Interface for Wiki RAG System
 Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
 """
+import os
+os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from flask import Flask, request, render_template, jsonify
 from rag_system import RAGSystem, RAGInitializationError, RAGQueryError
 import logging
 from pathlib import Path
-import warnings
-import os
-os.environ['PYTHONWARNINGS'] = 'ignore::DeprecationWarning'
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 # Logging beállítása
