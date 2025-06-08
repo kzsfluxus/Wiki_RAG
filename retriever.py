@@ -3,6 +3,14 @@
 """
 Created on Thu Jun  5 15:31:49 2025
 @author: zsolt
+
+MediaWiki oldalak letöltésére szolgáló modul.
+
+Ez a modul MediaWiki alapú wiki oldalak letöltésére szolgál különböző módszerekkel:
+- Összes oldal letöltése limit-tel
+- Kiválasztott oldalak letöltése
+- Kapcsolódó oldalak keresése prefix alapján
+- Konfigurációs fájl alapú automatikus letöltés
 """
 
 import mwclient
@@ -19,12 +27,32 @@ DEFAULT_OUTPUT = Path('data/wiki_pages.json')
 
 
 def load_config(path=CONFIG_PATH):
+    """
+    Konfigurációs fájl betöltése.
+
+    Args:
+        path (Path, optional): A konfigurációs fájl útvonala.
+            Alapértelmezett: CONFIG_PATH
+
+    Returns:
+        configparser.ConfigParser: A betöltött konfiguráció objektum.
+    """
     config = configparser.ConfigParser()
     config.read(path)
     return config
 
 
 def save_pages(pages, output_path):
+    """
+    Wiki oldalak mentése JSON fájlba.
+
+    Args:
+        pages (list): A mentendő wiki oldalak listája (dict-ek 'title' és 'text' kulcsokkal).
+        output_path (str vagy Path): A kimeneti fájl útvonala.
+
+    Raises:
+        OSError: Ha a könyvtár létrehozása vagy a fájl írása nem sikerül.
+    """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as file:
         json.dump(pages, file, ensure_ascii=False, indent=2)
@@ -32,6 +60,21 @@ def save_pages(pages, output_path):
 
 
 def connect(site_url, path, username=None, password=None):
+    """
+    Kapcsolódás MediaWiki site-hoz.
+
+    Args:
+        site_url (str): A wiki site URL-je (pl. 'hu.wikipedia.org').
+        path (str): A wiki útvonal (pl. '/w/').
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+
+    Returns:
+        mwclient.Site: A MediaWiki site objektum.
+
+    Raises:
+        mwclient.errors.LoginError: Ha a bejelentkezés sikertelen.
+    """
     logger.info("Csatlakozás: https://%s%s", site_url, path)
     site = mwclient.Site(site_url, path=path)
     if username and password:
@@ -42,6 +85,21 @@ def connect(site_url, path, username=None, password=None):
 
 def fetch_wiki_pages(site_url, path='/wiki/', username=None,
                      password=None, limit=50, output_path=DEFAULT_OUTPUT):
+    """
+    Wiki oldalak letöltése az összes oldal listájából.
+
+    Args:
+        site_url (str): A wiki site URL-je.
+        path (str, optional): A wiki útvonal. Alapértelmezett: '/wiki/'
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+        limit (int, optional): Letöltendő oldalak száma. Alapértelmezett: 50
+        output_path (Path, optional): Kimeneti fájl útvonala.
+            Alapértelmezett: DEFAULT_OUTPUT
+
+    Raises:
+        Exception: Ha a wiki kapcsolat vagy letöltés sikertelen.
+    """
     site = connect(site_url, path, username, password)
     pages = []
     logger.info("Wiki oldalak letöltése kezdődik - limit: %d", limit)
@@ -64,6 +122,20 @@ def fetch_wiki_pages(site_url, path='/wiki/', username=None,
 
 def fetch_selected_pages(site_url, titles, path='/w/',
                          username=None, password=None):
+    """
+    Kiválasztott wiki oldalak letöltése címek alapján.
+
+    Args:
+        site_url (str): A wiki site URL-je.
+        titles (list): A letöltendő oldalak címeinek listája.
+        path (str, optional): A wiki útvonal. Alapértelmezett: '/w/'
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+
+    Note:
+        Az oldalak a DEFAULT_OUTPUT útvonalra kerülnek mentésre.
+        Hiányzó vagy üres oldalak logolva lesznek, de nem törlik meg a folyamatot.
+    """
     site = mwclient.Site(site_url, path=path)
     if username and password:
         site.login(username, password)
@@ -113,6 +185,20 @@ def fetch_selected_pages(site_url, titles, path='/w/',
 
 def fetch_related_pages(site_url, root_title, limit=50,
                         path='/w/', username=None, password=None):
+    """
+    Kapcsolódó oldalak letöltése prefix keresés alapján.
+
+    Args:
+        site_url (str): A wiki site URL-je.
+        root_title (str): A keresési prefix (pl. "Python" minden Python-nal kezdődő oldalhoz).
+        limit (int, optional): Maximum találatok száma. Alapértelmezett: 50
+        path (str, optional): A wiki útvonal. Alapértelmezett: '/w/'
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+
+    Note:
+        A talált oldalak a fetch_selected_pages függvényen keresztül töltődnek le.
+    """
     site = mwclient.Site(site_url, path=path)
     if username and password:
         site.login(username, password)
@@ -153,12 +239,26 @@ def fetch_related_pages(site_url, root_title, limit=50,
 def fetch_selected_pages_return(
         site_url, titles, path='/w/', username=None, password=None):
     """
-    Kiválasztott oldalak letöltése és visszaadása (mentés nélkül)
+    Kiválasztott oldalak letöltése és visszaadása (mentés nélkül).
+
+    Args:
+        site_url (str): A wiki site URL-je.
+        titles (list): A letöltendő oldalak címeinek listája.
+        path (str, optional): A wiki útvonal. Alapértelmezett: '/w/'
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+
+    Returns:
+        list: A letöltött oldalak listája (dict-ek 'title' és 'text' kulcsokkal).
+
+    Note:
+        Ez a függvény nem ment fájlba, csak visszaadja az adatokat.
+        Hiányzó vagy üres oldalak kihagyásra kerülnek.
     """
     site = mwclient.Site(site_url, path=path)
     if username and password:
         site.login(username, password)
-        logger.info("Bejelentkezés sikeres")
+        logger.info("Bejelентkezés sikeres")
 
     pages = []
     logger.info("Csatlakozás: https://%s%s", site_url, path)
@@ -194,7 +294,22 @@ def fetch_selected_pages_return(
 def fetch_related_pages_return(
         site_url, root_title, limit=50, path='/w/', username=None, password=None):
     """
-    Kapcsolódó oldalak letöltése és visszaadása (mentés nélkül)
+    Kapcsolódó oldalak letöltése és visszaadása (mentés nélkül).
+
+    Args:
+        site_url (str): A wiki site URL-je.
+        root_title (str): A keresési prefix.
+        limit (int, optional): Maximum találatok száma. Alapértelmezett: 50
+        path (str, optional): A wiki útvonal. Alapértelmezett: '/w/'
+        username (str, optional): Felhasználónév bejelentkezéshez.
+        password (str, optional): Jelszó bejelentkezéshez.
+
+    Returns:
+        list: A letöltött kapcsolódó oldalak listája, üres lista hiba esetén.
+
+    Note:
+        Ez a függvény nem ment fájlba, csak visszaadja az adatokat.
+        Prefix keresést használ a MediaWiki API-n keresztül.
     """
     site = mwclient.Site(site_url, path=path)
     if username and password:
@@ -231,6 +346,31 @@ def fetch_related_pages_return(
 
 
 def auto_fetch_from_config(conf_file='wiki_rag.conf'):
+    """
+    Automatikus wiki oldalak letöltése konfigurációs fájl alapján.
+
+    Ez a függvény beolvassa a konfigurációs fájlt és a benne megadott
+    beállítások alapján letölti a wiki oldalakat. Támogatja mind a
+    kiválasztott oldalakat, mind a prefix alapú keresést.
+
+    Args:
+        conf_file (str, optional): A konfigurációs fájl neve/útvonala.
+            Alapértelmezett: 'wiki_rag.conf'
+
+    Returns:
+        None
+
+    Note:
+        A konfigurációs fájlnak a következő szekciókat tartalmazhatja:
+        - [wiki]: url, path, username, password
+        - [selected]: pages (vesszővel elválasztott lista)
+        - [related]: root, limit
+
+        Ha mindkét szekció meg van adva, mindkét típusú letöltés megtörténik.
+
+    Raises:
+        Exception: Ha kritikus hiba történik a letöltés során (logolva).
+    """
     config = configparser.ConfigParser()
 
     if not os.path.exists(conf_file):

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def stop_ollama_model(model_name="mistral"):
     """
-    Ollama processek tisztítása
+    Ollama model leállítása
     """
     try:
         result = subprocess.run(
