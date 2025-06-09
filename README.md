@@ -20,6 +20,8 @@ Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lok
 
 ## Telepítés:
 ```bash
+git clone https://github.com/kzsfluxus/Wiki_RAG
+cd Wiki_RAG
 python3 -m venv .venv
 pip3 install -r requirements-cpu.txt # CPU-only gépeken
 pip3 install -r requirements-gpu.txt # NVIDIA GPU-t és CUDA-t használó gépeken
@@ -29,14 +31,12 @@ pip3 install -r requirements-gpu.txt # NVIDIA GPU-t és CUDA-t használó gépek
 
 CLI:
 ```bash
-source .venv/bin/activate
-python3 main.py
+./cli_start
 ```
 
 WEB:
 ```bash
-source .venv/bin/activate
-python3 app.py
+./web_start
 ```
 
 ## Konfiguráció
