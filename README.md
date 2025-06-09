@@ -1,6 +1,8 @@
-# WikiRAG 🔍📚
+# KZSfluxusu - Wiki_RAG_System 🔍📚
 
 Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lokális LLM (Mistral via Ollama), FAISS indexelés és Flask-alapú keresőfelület.
+
+A Wiki RAG (retrieval-augmented generation) program egy intelligens információkinyerő és -feldolgozó rendszer, amely MediaWiki-alapú tartalmakból képes releváns válaszokat generálni természetes nyelven. Hasznos eszköz lehet magánszemélyeknek, akik személyes tudásbázist szeretnének építeni vagy gyorsan szeretnének eligazodni nagy mennyiségű wiki-alapú dokumentációban. Vállalkozások számára különösen előnyös, ha belső tudástárral rendelkeznek, és szeretnék azt kereshetővé, interaktívvá és könnyen hozzáférhetővé tenni munkatársaik számára, esetleg egy részét a klienseikkel. A rendszer gépi tanulást és nyelvi modelleket használ a pontosabb és kontextusfüggő válaszok érdekében. Alkalmazható ügyfélszolgálati rendszerekhez, belső keresők fejlesztéséhez vagy akár oktatási célokra is.
 
 ## ✨ Főbb jellemzők
 
@@ -19,6 +21,7 @@ Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lok
 
 
 ## Telepítés:
+
 ```bash
 git clone https://github.com/kzsfluxus/Wiki_RAG
 cd Wiki_RAG
