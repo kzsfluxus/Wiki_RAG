@@ -324,5 +324,5 @@ class RAGSystem:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager cleanup"""
-        logger.info("🧹 RAG System context manager cleanup...")
+        logger.info("🧹 RAG System kontextus menedzser tisztítása...")
         self._cleanup_handler()

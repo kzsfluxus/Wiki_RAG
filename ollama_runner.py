@@ -45,7 +45,7 @@ def run_ollama_model(prompt, model_name="mistral"):
             timeout=600  # 10 perc az első betöltéshez
         )
         if result.returncode == 0:
-            logger.info(" ✅ Ollama modell sikeresen lefutott: %s", model_name)
+            logger.info("✅ Ollama modell sikeresen betöltődött: %s", model_name)
             return result.stdout.decode()
 
         logger.error("Ollama hiba: %s", result.stderr.decode())
@@ -79,7 +79,7 @@ def stop_ollama_model(model_name="mistral"):
         )
         if result.returncode == 0:
             logger.info(
-                " ✅ A %s modell sikeresen leállítva",
+                "✅ A %s modell sikeresen leállítva",
                 model_name)
             return result.stdout.decode()
 
