@@ -20,7 +20,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def run_ollama_model(prompt, model_name="mistral-openorca"):
+model_name='mistral-openorca'
+
+def run_ollama_model(prompt, model_name):
     """
     Futtat egy szöveges promptot a megadott Ollama modellen.
 
@@ -59,7 +61,7 @@ def run_ollama_model(prompt, model_name="mistral-openorca"):
         logger.error("Subprocess hiba: %s", error)
         return "Hiba történt a modell hívásakor."
 
-def stop_ollama_model(model_name="mistral-openorca"):
+def stop_ollama_model(model_name):
     """
     Leállít egy futó Ollama modellt.
 

@@ -42,6 +42,7 @@ import signal
 import sys
 from pathlib import Path
 from typing import Dict, Any
+from ollama_runner import model_name
 import logging
 
 logger = logging.getLogger(__name__)
@@ -110,7 +111,7 @@ class RAGSystem:
 
         self._cleanup_executed = True  # Flag beállítása
         try:
-            stop_ollama_model()
+            stop_ollama_model(model_name)
         except Exception as error:
             logger.warning(f"⚠️  Cleanup handler hiba: {error}")
 
