@@ -68,6 +68,22 @@ WEB:
 ```bash
 ./web_start
 ```
+A Flask-alapú RAG rendszer a következő címen érhető el:
+
+http://localhost:5000
+Főbb funkciók
+
+A rendszer az alábbi HTTP végpontokat biztosítja:
+
+- `/` Főoldal kérdés-válasz felülettel. A felhasználó szöveges kérdést adhat meg, amelyre a rendszer a háttérben betöltött wiki alapú tudásból generál választ. Hiba esetén részletes üzenetet jelenít meg.
+
+- `/refresh` Manuális adatfrissítést végző POST végpont. Újra betölti a tudásbázist, új indexet épít, és frissíti az embeddingeket.
+
+- `/api/ask` REST API POST végpont kérdések gépi feldolgozásához. A JSON törzsben question mezőt vár, és JSON válaszban adja vissza a választ.
+
+- `/api/health` Egyszerű egészségügyi ellenőrző GET végpont, amely visszajelzést ad a rendszer inicializációs állapotáról és alapinformációkat nyújt.
+
+- `/api/status` Részletes státusz-lekérdező GET végpont. Visszaadja, hogy a rendszer be van-e töltve, hány dokumentumot lát, az embedding modul működik-e, és néhány dokumentumcímet is felsorol.
 
 ## Konfiguráció
 
