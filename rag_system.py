@@ -283,7 +283,7 @@ class RAGSystem:
             # Prompt építése és válasz generálása
             logger.info("🤖 Válasz generálása...")
             prompt = build_prompt(results, question)
-            raw_answer = run_ollama_model(prompt)
+            raw_answer = run_ollama_model(prompt, model_name)
 
             # Válasz tisztítása
             clean_answer = clean_wiki_text(raw_answer)

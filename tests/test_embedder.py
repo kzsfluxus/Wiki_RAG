@@ -25,7 +25,7 @@ def dummy_docs():
 
 @pytest.fixture
 def embedder_instance():
-    return Embedder(model_name='paraphrase-multilingual-MiniLM-L12-v2')
+    return Embedder(model_name='paraphrase-multilingual-mpnet-base-v2')
 
 
 def test_build_index(embedder_instance, dummy_docs):

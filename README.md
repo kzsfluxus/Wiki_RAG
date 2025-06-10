@@ -7,7 +7,7 @@ A Wiki RAG (retrieval-augmented generation) program egy intelligens információ
 ## ✨ Főbb jellemzők
 
 - 🕸️ MediaWiki-oldalak lekérdezése `mwclient` használatával
-- 🧠 Embedding generálás `paraphrase-multilingual-MiniLM-L12-v2` modellel 
+- 🧠 Embedding generálás `paraphrase-multilingual-mpnet-base-v2` modellel 
 - ⚡ FAISS-alapú keresés
 - 🌐 Flask-alapú webes keresőfelület 
 
@@ -16,7 +16,7 @@ A Wiki RAG (retrieval-augmented generation) program egy intelligens információ
 ## 🧰 Követelmények
 
 - Python 3.10+
-- [Ollama](https://ollama.com/) (telepített és futó `mistral-openorca` modell)
+- [Ollama](https://ollama.com/) (telepített és futó `mistral` modell)
 - `venv` (vagy `virtualenv`) a környezet izolálásához
 
 ### Minimum hardverkövetelmények (CPU-only)

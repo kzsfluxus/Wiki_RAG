@@ -20,7 +20,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-model_name='mistral-openorca'
+model_name='mistral'
 
 def run_ollama_model(prompt, model_name):
     """
