@@ -1,4 +1,4 @@
-# KZSfluxusu - Wiki_RAG_System 🔍📚
+# KZSfluxus - Wiki_RAG_System 🔍📚
 
 Retrieval-Augmented Generation rendszer MediaWiki-oldalak feldolgozásához, lokális LLM (Mistral via Ollama), FAISS indexelés és Flask-alapú keresőfelület.
 
