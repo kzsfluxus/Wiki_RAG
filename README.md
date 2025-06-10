@@ -71,6 +71,7 @@ WEB:
 A Flask-alapú RAG rendszer a következő címen érhető el:
 
 http://localhost:5000
+
 Főbb funkciók
 
 A rendszer az alábbi HTTP végpontokat biztosítja:
