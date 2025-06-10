@@ -19,6 +19,34 @@ A Wiki RAG (retrieval-augmented generation) program egy intelligens információ
 - [Ollama](https://ollama.com/) (telepített és futó `mistral` modell)
 - `venv` (vagy `virtualenv`) a környezet izolálásához
 
+### Minimum hardverkövetelmények (CPU-only)
+
+| Komponens | Specifikáció |
+|----------|--------------|
+| CPU | 8 magos processzor vagy több (pl. Intel i7 vagy AMD Ryzen 7) |
+| RAM | 16 GB vagy több |
+| Tárhely | Nagy sebességű SSD, legalább 50 GB szabad hely |
+| Operációs rendszer | Linux (ajánlott) vagy Windows 10/11 |
+
+### Minimum hardverkövetelmények (GPU)
+
+| Komponens | Specifikáció |
+|-----------|--------------|
+| CPU | 4 magos processzor (pl. Intel i5 vagy AMD Ryzen 5) |
+| RAM | 16 GB |
+| GPU | NVIDIA GPU 8 GB VRAM-mel (pl. GTX 1080) |
+| Tárhely | SSD, legalább 50 GB szabad hely |
+| Operációs rendszer | Linux vagy Windows 10/11 |
+
+### Optimális hardverkövetelmények (GPU)
+
+| Komponens | Specifikáció |
+|-----------|--------------|
+| CPU | 8 magos processzor vagy több (pl. Intel i7/i9 vagy AMD Ryzen 7/9) |
+| RAM | 32 GB vagy több |
+| GPU | NVIDIA GPU 24 GB VRAM-mel (pl. RTX 3090 vagy A100) |
+| Tárhely | Nagy sebességű SSD, legalább 100 GB szabad hely |
+| Operációs rendszer | Linux (ajánlott) vagy Windows 10/11 |
 
 ## Telepítés:
 
@@ -29,7 +57,6 @@ python3 -m venv .venv
 pip3 install -r requirements-cpu.txt # CPU-only gépeken
 pip3 install -r requirements-gpu.txt # NVIDIA GPU-t és CUDA-t használó gépeken
 ```
-
 ## Használat:
 
 CLI:
