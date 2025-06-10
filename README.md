@@ -16,7 +16,7 @@ A Wiki RAG (retrieval-augmented generation) program egy intelligens információ
 ## 🧰 Követelmények
 
 - Python 3.10+
-- [Ollama](https://ollama.com/) (telepített és futó `mistral` modell)
+- [Ollama](https://ollama.com/) (telepített és futó `mistral-openorca` modell)
 - `venv` (vagy `virtualenv`) a környezet izolálásához
 
 ### Minimum hardverkövetelmények (CPU-only)

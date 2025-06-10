@@ -20,13 +20,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def run_ollama_model(prompt, model_name="mistral"):
+def run_ollama_model(prompt, model_name="mistral-openorca"):
     """
     Futtat egy szöveges promptot a megadott Ollama modellen.
 
     Args:
         prompt (str): A bemeneti szöveg, amit a modellnek elküldünk.
-        model_name (str, optional): A futtatandó Ollama modell neve. Alapértelmezett: 'mistral'.
+        model_name (str, optional): A futtatandó Ollama modell neve. Alapértelmezett: 'mistral-openorca'.
 
     Returns:
         str: A modell futtatásának eredménye (standard output),
@@ -59,12 +59,12 @@ def run_ollama_model(prompt, model_name="mistral"):
         logger.error("Subprocess hiba: %s", error)
         return "Hiba történt a modell hívásakor."
 
-def stop_ollama_model(model_name="mistral"):
+def stop_ollama_model(model_name="mistral-openorca"):
     """
     Leállít egy futó Ollama modellt.
 
     Args:
-        model_name (str, optional): A leállítandó Ollama modell neve. Alapértelmezett: 'mistral'.
+        model_name (str, optional): A leállítandó Ollama modell neve. Alapértelmezett: 'mistral-openorca'.
 
     Returns:
         str: A leállítás eredménye (standard output),
