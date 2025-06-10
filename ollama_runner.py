@@ -28,7 +28,7 @@ def run_ollama_model(prompt, model_name):
 
     Args:
         prompt (str): A bemeneti szöveg, amit a modellnek elküldünk.
-        model_name (str, optional): A futtatandó Ollama modell neve. Alapértelmezett: 'mistral-openorca'.
+        model_name (str, optional): A futtatandó Ollama modell neve.
 
     Returns:
         str: A modell futtatásának eredménye (standard output),
@@ -66,7 +66,7 @@ def stop_ollama_model(model_name):
     Leállít egy futó Ollama modellt.
 
     Args:
-        model_name (str, optional): A leállítandó Ollama modell neve. Alapértelmezett: 'mistral-openorca'.
+        model_name (str, optional): A leállítandó Ollama modell neve.
 
     Returns:
         str: A leállítás eredménye (standard output),
