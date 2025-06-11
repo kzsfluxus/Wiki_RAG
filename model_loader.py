@@ -9,6 +9,8 @@ import configparser
 from pathlib import Path
 import logging
 
+logger = logging.getLogger(__name__)
+
 MODEL_PATH=Path('models/models.ini')
 
 def get_model(path=MODEL_PATH, default_model='mistral'):
@@ -29,12 +31,12 @@ def get_model(path=MODEL_PATH, default_model='mistral'):
         model_name = config.get('models', 'language_model', fallback='').strip()
 
         if model_name and len(model_name) <= 100:
-            logging.info("Sikeresen betöltött modell: %s", model_name)
+            logger.info("Sikeresen betöltött modell: %s", model_name)
             return model_name
         else:
-            logging.info("Érvénytelen vagy hiányzó modellnév, alapértelmezettet használunk: %s", default_model)
+            logger.info("Érvénytelen vagy hiányzó modellnév, alapértelmezettet használunk: %s", default_model)
             return default_model
 
     except configparser.Error as error:
-        logging.warning("Konfigurációs hiba (%s), alapértelmezett modell: %s", error, default_model)
+        logger.warning("Konfigurációs hiba (%s), alapértelmezett modell: %s", error, default_model)
         return default_model
