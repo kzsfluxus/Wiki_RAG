@@ -34,7 +34,7 @@ class Embedder:
         documents (list): A dokumentumok listája.
     """
 
-    def __init__(self, model_name='paraphrase-multilingual-MiniLM-L12-v2'):
+    def __init__(self, model_name='paraphrase-multilingual-mpnet-base-v2'):
         # Opciók 'paraphrase-multilingual-mpnet-base-v2', 'paraphrase-multilingual-MiniLM-L12-v2'
         """
         Embedder osztály inicializálása.

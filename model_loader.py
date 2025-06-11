@@ -11,35 +11,30 @@ import logging
 
 MODEL_PATH=Path('models/models.ini')
 
-def get_model(path=MODEL_PATH):
+def get_model(path=MODEL_PATH, default_model='mistral'):
     """
     Betölti a nyelvi modell nevét a konfigurációs fájlból.
-   
-    A függvény egy konfigurációs fájlból olvassa ki a használandó nyelvi modell 
-    nevét. Ha a fájl nem létezik, nem olvasható, vagy nem tartalmazza a szükséges 
-    beállításokat, akkor egy alapértelmezett modellt ad vissza.
-   
+
     Args:
-        path (str, optional): A konfigurációs fájl elérési útja. 
-            Alapértelmezett: MODEL_PATH globális változó értéke.
-   
+        path (str): A konfigurációs fájl elérési útja.
+        default_model (str): Alapértelmezett modell, ha a fájl nem érhető el vagy hibás.
+
     Returns:
-        str: A nyelvi modell neve. Ha nem sikerül betölteni a konfigurációból,
-            akkor 'mistral' alapértelmezett értéket ad vissza.
+        str: A nyelvi modell neve a konfigurációból, vagy az alapértelmezett.
     """
-    DEFAULT_MODEL = 'mistral'
     config = configparser.ConfigParser()
+    
     try:
         config.read(path, encoding='utf-8')
-        if 'models' in config and 'language_model' in config['models']:
-            model_name = config['models']['language_model'].strip()
-                        
-            if model_name and len(model_name) <= 100:
-                return model_name
-                logging.info("%s modell sikeresen betöltve", model_name)
-        return DEFAULT_MODEL
-        logging.info("%s modell sikeresen betöltve", DEFAULT_MODEL)
-    except (configparser.Error) as error:
-        logging.warning
-        ("Hiba a model.ini fájlban: %s, a RAG Rendszer az alapértelmezett modellt használja: %s", error ,DEFAULT_MODEL)
-        return DEFAULT_MODEL
+        model_name = config.get('models', 'language_model', fallback='').strip()
+
+        if model_name and len(model_name) <= 100:
+            logging.info("Sikeresen betöltött modell: %s", model_name)
+            return model_name
+        else:
+            logging.info("Érvénytelen vagy hiányzó modellnév, alapértelmezettet használunk: %s", default_model)
+            return default_model
+
+    except configparser.Error as error:
+        logging.warning("Konfigurációs hiba (%s), alapértelmezett modell: %s", error, default_model)
+        return default_model

@@ -41,10 +41,12 @@ def build_prompt(contexts, question):
     if not contexts:
         return f"Kérdés: {question}\n\nVálasz: Sajnos nincs releváns információ a dokumentumokban."
 
-    prompt = "Az alábbi MediaWiki oldalak alapján adj részletes választ a kérdésre.\n"
-    prompt += "Használd elsősorban a wiki tartalmakat, de kiegészítheted általános tudásoddal is.\n\n"
-    prompt += "WIKI FORRÁSOK:\n\n"
-
+    prompt = "Az alábbi MediaWiki-oldalak alapján válaszolj a kérdésre **helyes és természetes magyar nyelven**.\n"
+    prompt += "A válasz legyen részletes, tényszerű és jól megfogalmazott, ügyelve az alany–állítmány egyeztetésre, "
+    prompt += "helyesírásra és nyelvtani pontosságra.\n"
+    prompt += "Elsősorban a wiki tartalmakat használd, de ha szükséges, egészítsd ki általános tudással is.\n\n"
+    prompt += "## FORRÁSOK:\n\n"
+    
     for i, doc in enumerate(contexts, 1):
         title = doc.get('title', f'Oldal {i}')
         # Hosszabb szöveg több kontextusért
