@@ -22,7 +22,7 @@ import mwclient
 
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = Path('wiki_rag.conf')
+CONFIG_PATH = Path('wiki_rag.ini')
 DEFAULT_OUTPUT = Path('data/wiki_pages.json')
 
 
@@ -345,7 +345,7 @@ def fetch_related_pages_return(
         return []
 
 
-def auto_fetch_from_config(conf_file='wiki_rag.conf'):
+def auto_fetch_from_config(conf_file='wiki_rag.ini'):
     """
     Automatikus wiki oldalak letöltése konfigurációs fájl alapján.
 
@@ -355,7 +355,7 @@ def auto_fetch_from_config(conf_file='wiki_rag.conf'):
 
     Args:
         conf_file (str, optional): A konfigurációs fájl neve/útvonala.
-            Alapértelmezett: 'wiki_rag.conf'
+            Alapértelmezett: 'wiki_rag.ini'
 
     Returns:
         None

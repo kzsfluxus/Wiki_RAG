@@ -54,7 +54,7 @@ def test_should_refresh_data_no_config(tmp_path, monkeypatch):
 def test_should_refresh_data_config_newer(tmp_path, monkeypatch):
     wiki_file = tmp_path / "wiki_pages.json"
     wiki_file.write_text("[]")
-    config_file = tmp_path / "wiki_rag.conf"
+    config_file = tmp_path / "wiki_rag.ini"
     config_file.write_text("[selected]\npages =")
 
     # Config később lett módosítva
@@ -69,7 +69,7 @@ def test_should_refresh_data_config_newer(tmp_path, monkeypatch):
 
 def test_should_refresh_data_missing_expected_page(tmp_path, monkeypatch):
     wiki_file = tmp_path / "wiki_pages.json"
-    config_file = tmp_path / "wiki_rag.conf"
+    config_file = tmp_path / "wiki_rag.ini"
 
     # A wiki fájl nem tartalmazza az elvárt oldalt
     wiki_file.write_text(json.dumps([{"title": "Existing Page"}], ensure_ascii=False))
@@ -83,7 +83,7 @@ def test_should_refresh_data_missing_expected_page(tmp_path, monkeypatch):
 
 def test_should_refresh_data_all_good(tmp_path, monkeypatch):
     wiki_file = tmp_path / "wiki_pages.json"
-    config_file = tmp_path / "wiki_rag.conf"
+    config_file = tmp_path / "wiki_rag.ini"
 
     # A wiki fájl tartalmazza a configban elvárt oldalt
     wiki_file.write_text(json.dumps([{"title": "Expected Page"}], ensure_ascii=False))

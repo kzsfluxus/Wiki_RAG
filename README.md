@@ -88,9 +88,11 @@ A rendszer az alábbi HTTP végpontokat biztosítja:
 
 ## Konfiguráció
 
-wiki_rag.conf
+### MediaWiki oldalak
 
-```conf
+wiki_rag.ini
+
+```ini
 [wiki]
 url = hu.wikipedia.org  # A mediawiki url-je
 path = /w/              # Prefix, többnyire /w/ vagy /wiki/
@@ -103,6 +105,16 @@ pages = Spanyolország   # Letöltendő oldal(ak)
 [related]
 root = Madrid           # További Madriddal kapcsolatos oldalak
 limit = 50              # Letöltött oldalak maximális száma
+```
+### Nyelvi modell
+
+Amennyiben üresen hagyjuk, az alapértelmezett `mistral` modellt használja a rendszer
+
+models/models.ini
+
+```ini
+[models]
+language_model = llama3.2:latest
 ```
 ## Képernyőképek
 

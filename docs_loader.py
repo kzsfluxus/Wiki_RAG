@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 WIKI_FILE = Path('data/wiki_pages.json')
-CONFIG_FILE = Path('wiki_rag.conf')
+CONFIG_FILE = Path('wiki_rag.ini')
 
 
 def clear_cache():

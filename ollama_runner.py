@@ -17,10 +17,11 @@ Fő funkciók:
 """
 import subprocess
 import logging
+from model_loader import get_model
 
 logger = logging.getLogger(__name__)
 
-model_name='mistral'
+model_name = get_model()    
 
 def run_ollama_model(prompt, model_name):
     """

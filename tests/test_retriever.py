@@ -27,7 +27,7 @@ def test_save_pages(tmp_path):
 
 
 def test_load_config(tmp_path):
-    config_file = tmp_path / 'wiki_rag.conf'
+    config_file = tmp_path / 'wiki_rag.ini'
     config_file.write_text('[wiki]\nurl = example.org\n', encoding='utf-8')
 
     config = retriever.load_config(config_file)

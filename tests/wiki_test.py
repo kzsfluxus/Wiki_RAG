@@ -14,7 +14,7 @@ print("🔍 Fájlok ellenőrzése...")
 print(f"Jelenlegi könyvtár: {os.getcwd()}")
 
 # Konfig fájl
-config_file = "wiki_rag.conf"
+config_file = "wiki_rag.ini"
 if Path(config_file).exists():
     print(f"✅ Konfig fájl megtalálva: {config_file}")
     with open(config_file, 'r') as f:
