@@ -34,18 +34,18 @@ class Embedder:
         documents (list): A dokumentumok listája.
     """
 
-    def __init__(self, model_name='paraphrase-multilingual-mpnet-base-v2'):
+    def __init__(self, embedding_model_name='paraphrase-multilingual-MiniLM-L12-v2'):
         # Opciók 'paraphrase-multilingual-mpnet-base-v2', 'paraphrase-multilingual-MiniLM-L12-v2'
         """
         Embedder osztály inicializálása.
 
         Args:
-            model_name (str, optional): A használandó sentence transformer modell neve.
+            embedding_model_name (str, optional): A használandó sentence transformer modell neve.
         """
-        self.model = SentenceTransformer(model_name)
+        self.model = SentenceTransformer(embedding_model_name)
         self.index = faiss.IndexFlatL2(self.model.get_sentence_embedding_dimension())
         self.documents = []
-        logger.info("Embedder inicializálva - model: %s", model_name)
+        logger.info("Embedder inicializálva - model: %s", embedding_model_name)
 
     def build_index(self, docs):
         """

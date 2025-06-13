@@ -122,6 +122,26 @@ def refresh_data():
         }), 500
 
 
+@app.route('/api/reload-model', methods=['POST'])
+def reload_model():
+    """Modell konfiguráció újratöltése"""
+    try:
+        old_model = rag_system.model_name
+        new_model = rag_system.reload_model_from_config()
+        
+        return jsonify({
+            "status": "success",
+            "old_model": old_model,
+            "new_model": new_model,
+            "message": f"Modell frissítve: {old_model} -> {new_model}"
+        })
+    except Exception as error:
+        return jsonify({
+            "status": "error", 
+            "message": str(error)
+        }), 500
+
+
 @app.route('/api/ask', methods=['POST'])
 def api_ask():
     """REST API végpont kérdések feldolgozásához"""

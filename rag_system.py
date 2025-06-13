@@ -37,12 +37,12 @@ from text_cleaner import clean_wiki_text
 from retriever import auto_fetch_from_config
 from ollama_runner import run_ollama_model, stop_ollama_model
 from embedder import Embedder
+from model_loader import get_model
 import atexit
 import signal
 import sys
 from pathlib import Path
 from typing import Dict, Any
-from ollama_runner import model_name
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,9 +72,39 @@ class RAGSystem:
         self._cleanup_registered = False
         self._cleanup_executed = False
         logger.info("🚀 RAG System objektum létrehozva")
+        
+        # Model név betöltése
+        self._model_name = get_model()
+        logger.info(f"🚀 RAG System objektum létrehozva - modell: {self._model_name}")
 
         # Cleanup regisztrálása egyszer
         self._register_cleanup()
+        
+    @property
+    def model_name(self) -> str:
+        """Visszaadja az aktuális modell nevét"""
+        return self._model_name
+
+    def set_model(self, model_name: str) -> None:
+        """
+        Beállít egy modellt
+        
+        Args:
+            model_name (str): A modell neve
+        """
+        self._model_name = model_name.strip()
+        logger.debug(f"🔧 Modell beállítva: {self._model_name}")
+
+    def reload_model_from_config(self) -> str:
+        """
+        Újratölti a modellt a konfigurációs fájlból
+        
+        Returns:
+            str: A modell neve
+        """
+        self._model_name = get_model()
+        logger.debug(f"🔧 Modell konfiguráció újratöltve: {self._model_name}")
+        return self._model_name
 
     def _register_cleanup(self):
         """
@@ -111,7 +141,7 @@ class RAGSystem:
 
         self._cleanup_executed = True  # Flag beállítása
         try:
-            stop_ollama_model(model_name)
+            stop_ollama_model(self._model_name)
         except Exception as error:
             logger.warning(f"⚠️  Cleanup handler hiba: {error}")
 
@@ -283,7 +313,7 @@ class RAGSystem:
             # Prompt építése és válasz generálása
             logger.info("🤖 Válasz generálása...")
             prompt = build_prompt(results, question)
-            raw_answer = run_ollama_model(prompt, model_name)
+            raw_answer = run_ollama_model(prompt, self._model_name)
 
             # Válasz tisztítása
             clean_answer = clean_wiki_text(raw_answer)
