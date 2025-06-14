@@ -25,7 +25,7 @@ def dummy_docs():
 
 @pytest.fixture
 def embedder_instance():
-    return Embedder(model_name='paraphrase-multilingual-mpnet-base-v2')
+    return Embedder(embedding_model_name='paraphrase-multilingual-mpnet-base-v2')
 
 
 def test_build_index(embedder_instance, dummy_docs):
@@ -80,7 +80,8 @@ def test_query_invalid_document_index(embedder_instance):
     embedder_instance.build_index(docs)
 
     # FAISS indexbe manuálisan rakjunk plusz vektort, ami nem tartozik dokumentumhoz
-    extra_vector = np.random.rand(1, 384).astype('float32')
+    index_dim = embedder_instance.index.d
+    extra_vector = np.random.rand(1, index_dim).astype('float32')
     embedder_instance.index.add(extra_vector)
 
     # Most 2 vektor van, de csak 1 dokumentum

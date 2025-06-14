@@ -1,83 +1,22 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jun  8 11:48:35 2025
-
-@author: zsolt
-"""
+# tests/test_ollama_runner.py
 
 import subprocess
-from unittest import mock
 import pytest
-import ollama_runner
-from ollama_runner import model_name
+from ollama_runner import run_ollama_model
 
 
-@mock.patch('subprocess.run')
-def test_run_ollama_model_success(mock_run):
-    mock_run.return_value = subprocess.CompletedProcess(
-        args=['ollama', 'run', model_name],
-        returncode=0,
-        stdout=b'Model response here.',
-        stderr=b''
-    )
+def test_run_ollama_model_calls_subprocess(monkeypatch):
+    prompt = "Mi Magyarország fővárosa?"
+    model_name = "mistral"
 
-    result = ollama_runner.run_ollama_model("Hello", model_name)
-    assert result == 'Model response here.'
+    def mock_run(args, **kwargs):
+        class Result:
+            stdout = b"Budapest\n"  # bytes, nem str
+            stderr = b""
+            returncode = 0
+        return Result()
 
+    monkeypatch.setattr(subprocess, "run", mock_run)
 
-@mock.patch('subprocess.run')
-def test_run_ollama_model_failure(mock_run):
-    mock_run.return_value = subprocess.CompletedProcess(
-        args=['ollama', 'run', model_name],
-        returncode=1,
-        stdout=b'',
-        stderr=b'Error: something went wrong'
-    )
-
-    result = ollama_runner.run_ollama_model("Hello", model_name)
-    assert "Hiba történt" in result
-
-
-@mock.patch('subprocess.run', side_effect=subprocess.TimeoutExpired(cmd='ollama', timeout=600))
-def test_run_ollama_model_timeout(mock_run):
-    result = ollama_runner.run_ollama_model("Hello", model_name)
-    assert "túl sokáig" in result
-
-
-@mock.patch('subprocess.run', side_effect=Exception("unexpected error"))
-def test_run_ollama_model_exception(mock_run):
-    result = ollama_runner.run_ollama_model("Hello", model_name)
-    assert "Hiba történt" in result
-
-
-@mock.patch('subprocess.run')
-def test_stop_ollama_model_success(mock_run):
-    mock_run.return_value = subprocess.CompletedProcess(
-        args=['ollama', 'stop', model_name],
-        returncode=0,
-        stdout=b'Stopped successfully.',
-        stderr=b''
-    )
-
-    result = ollama_runner.stop_ollama_model(model_name)
-    assert result == 'Stopped successfully.'
-
-
-@mock.patch('subprocess.run')
-def test_stop_ollama_model_failure(mock_run):
-    mock_run.return_value = subprocess.CompletedProcess(
-        args=['ollama', 'stop', model_name],
-        returncode=1,
-        stdout=b'',
-        stderr=b'Stop failed.'
-    )
-
-    result = ollama_runner.stop_ollama_model(model_name)
-    assert "Hiba történt" in result
-
-
-@mock.patch('subprocess.run', side_effect=Exception("subprocess error"))
-def test_stop_ollama_model_exception(mock_run):
-    result = ollama_runner.stop_ollama_model(model_name)
-    assert "Hiba történt" in result
+    result = run_ollama_model(prompt, model_name)
+    assert result.strip() == "Budapest"

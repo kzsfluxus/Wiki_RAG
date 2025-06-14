@@ -20,7 +20,7 @@ def test_build_prompt_with_contexts():
     assert "== Python ==" in prompt
     assert "KÉRDÉS: Mi a Python?" in prompt
     assert "RÉSZLETES VÁLASZ:" in prompt
-    assert prompt.startswith("Az alábbi MediaWiki oldalak alapján adj részletes választ")
+    assert prompt.startswith("Az alábbi MediaWiki-oldalak alapján válaszolj a kérdésre")
 
 
 def test_build_prompt_with_empty_context():
