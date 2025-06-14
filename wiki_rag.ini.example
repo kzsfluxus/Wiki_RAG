@@ -1,0 +1,13 @@
+[wiki]
+url = hu.wikipedia.org
+path = /w/
+username = 
+password = 
+limit = 
+
+[selected]
+pages = Madrid, Barcelona
+
+[related]
+root = Spanyolország
+limit = 20

@@ -50,6 +50,47 @@ def clear_cache():
         return False
 
 
+def _parse_selected_pages(config):
+    """
+    Feldolgozza a [selected] szekció pages beállításait.
+    
+    Args:
+        config (configparser.ConfigParser): A konfiguráció objektum
+        
+    Returns:
+        list: A kiválasztott oldalak listája
+        
+    Raises:
+        ValueError: Ha keveredik a pages és pages.N formátum
+    """
+    if not config.has_section('selected'):
+        return []
+    
+    pages = []
+    has_simple_pages = False
+    has_numbered_pages = False
+    
+    # Ellenőrizzük a simple pages formátumot
+    simple_pages = config.get('selected', 'pages', fallback='').strip()
+    if simple_pages:
+        has_simple_pages = True
+        pages.extend([p.strip() for p in simple_pages.split(',') if p.strip()])
+    
+    # Ellenőrizzük a numbered pages formátumot (pages.1, pages.2, stb.)
+    for key in config.options('selected'):
+        if key.startswith('pages.') and key[6:].isdigit():
+            has_numbered_pages = True
+            numbered_pages = config.get('selected', key, fallback='').strip()
+            if numbered_pages:
+                pages.extend([p.strip() for p in numbered_pages.split(',') if p.strip()])
+    
+    # Ellenőrizzük, hogy keveredik-e a két formátum
+    if has_simple_pages and has_numbered_pages:
+        raise ValueError("Hiba: A 'pages' és 'pages.N' formátumok nem keveredhetnek az ini fájlban!")
+    
+    return pages
+
+
 def should_refresh_data() -> bool:
     """
     Eldönti, hogy frissíteni kell-e az adatokat az utolsó betöltés alapján.
@@ -87,19 +128,19 @@ def should_refresh_data() -> bool:
         config = configparser.ConfigParser()
         config.read(CONFIG_FILE)
 
-        if config.has_section('selected'):
-            expected_pages = config.get(
-                'selected', 'pages', fallback='').strip()
-            expected_titles = [p.strip()
-                               for p in expected_pages.split(',') if p.strip()]
-
+        try:
+            expected_pages = _parse_selected_pages(config)
+            
             # Ellenőrizzük, hogy a várt oldalak szerepelnek-e
             actual_titles = [doc.get('title', '') for doc in data]
-            for expected in expected_titles:
+            for expected in expected_pages:
                 if not any(expected.lower() in title.lower()
                            for title in actual_titles):
                     logger.warning("Hiányzó oldal az adatokból: %s", expected)
                     return True
+        except ValueError as e:
+            logger.error(str(e))
+            return True
 
         logger.debug("Adatok frissítése nem szükséges")
 

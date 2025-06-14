@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 CONFIG_PATH = Path('wiki_rag.ini')
 DEFAULT_OUTPUT = Path('data/wiki_pages.json')
+MAX_DOWNLOAD = 100  # Maximálisan letölthető oldalak száma konstans
 
 
 def load_config(path=CONFIG_PATH):
@@ -40,6 +41,47 @@ def load_config(path=CONFIG_PATH):
     config = configparser.ConfigParser()
     config.read(path)
     return config
+
+
+def _parse_selected_pages(config):
+    """
+    Feldolgozza a [selected] szekció pages beállításait.
+    
+    Args:
+        config (configparser.ConfigParser): A konfiguráció objektum
+        
+    Returns:
+        list: A kiválasztott oldalak listája
+        
+    Raises:
+        ValueError: Ha keveredik a pages és pages.N formátum
+    """
+    if not config.has_section('selected'):
+        return []
+    
+    pages = []
+    has_simple_pages = False
+    has_numbered_pages = False
+    
+    # Ellenőrizzük a simple pages formátumot
+    simple_pages = config.get('selected', 'pages', fallback='').strip()
+    if simple_pages:
+        has_simple_pages = True
+        pages.extend([p.strip() for p in simple_pages.split(',') if p.strip()])
+    
+    # Ellenőrizzük a numbered pages formátumot (pages.1, pages.2, stb.)
+    for key in config.options('selected'):
+        if key.startswith('pages.') and key[6:].isdigit():
+            has_numbered_pages = True
+            numbered_pages = config.get('selected', key, fallback='').strip()
+            if numbered_pages:
+                pages.extend([p.strip() for p in numbered_pages.split(',') if p.strip()])
+    
+    # Ellenőrizzük, hogy keveredik-e a két formátum
+    if has_simple_pages and has_numbered_pages:
+        raise ValueError("Hiba: A 'pages' és 'pages.N' formátumok nem keveredhetnek az ini fájlban!")
+    
+    return pages
 
 
 def save_pages(pages, output_path):
@@ -258,7 +300,7 @@ def fetch_selected_pages_return(
     site = mwclient.Site(site_url, path=path)
     if username and password:
         site.login(username, password)
-        logger.info("Bejelентkezés sikeres")
+        logger.info("Bejelentkezés sikeres")
 
     pages = []
     logger.info("Csatlakozás: https://%s%s", site_url, path)
@@ -297,8 +339,7 @@ def fetch_related_pages_return(
     Kapcsolódó oldalak letöltése és visszaadása (mentés nélkül).
 
     Args:
-        site_url (str): A wiki site URL-je.
-        root_title (str): A keresési prefix.
+        site_url (root_title (str): A keresési prefix.
         limit (int, optional): Maximum találatok száma. Alapértelmezett: 50
         path (str, optional): A wiki útvonal. Alapértelmezett: '/w/'
         username (str, optional): Felhasználónév bejelentkezéshez.
@@ -350,8 +391,12 @@ def auto_fetch_from_config(conf_file='wiki_rag.ini'):
     Automatikus wiki oldalak letöltése konfigurációs fájl alapján.
 
     Ez a függvény beolvassa a konfigurációs fájlt és a benne megadott
-    beállítások alapján letölti a wiki oldalakat. Támogatja mind a
-    kiválasztott oldalakat, mind a prefix alapú keresést.
+    beállítások alapján letölti a wiki oldalakat. Az új logika szerint:
+    
+    1. Ha a [selected] és [related] szekciók üresek, a [wiki] url-éből tölt le.
+    2. Ha nincs limit megadva a [wiki] szekcióban, a MAX_DOWNLOAD konstans lép érvénybe.
+    3. Az összes letöltendő oldal nem haladhatja meg a limitet.
+    4. Ha keveredik a pages és pages.N formátum, figyelmeztető üzenettel kilép.
 
     Args:
         conf_file (str, optional): A konfigurációs fájl neve/útvonala.
@@ -362,11 +407,9 @@ def auto_fetch_from_config(conf_file='wiki_rag.ini'):
 
     Note:
         A konfigurációs fájlnak a következő szekciókat tartalmazhatja:
-        - [wiki]: url, path, username, password
-        - [selected]: pages (vesszővel elválasztott lista)
+        - [wiki]: url, path, username, password, limit
+        - [selected]: pages vagy pages.1, pages.2, stb.
         - [related]: root, limit
-
-        Ha mindkét szekció meg van adva, mindkét típusú letöltés megtörténik.
 
     Raises:
         Exception: Ha kritikus hiba történik a letöltés során (logolva).
@@ -389,13 +432,23 @@ def auto_fetch_from_config(conf_file='wiki_rag.ini'):
     path = config.get('wiki', 'path', fallback='/w/').strip()
     username = config.get('wiki', 'username', fallback=None)
     password = config.get('wiki', 'password', fallback=None)
+    
+    # Limit ellenőrzése a [wiki] szekcióban
+    wiki_limit_str = config.get('wiki', 'limit', fallback='').strip()
+    if wiki_limit_str and wiki_limit_str.isdigit():
+        max_total_limit = int(wiki_limit_str)
+    else:
+        max_total_limit = MAX_DOWNLOAD
+        logger.info("Nincs megadva limit a [wiki] szekcióban, használjuk a MAX_DOWNLOAD = %d konstanst", MAX_DOWNLOAD)
 
-    logger.info("Konfig betöltve: %s", site_url)
+    logger.info("Konfig betöltve: %s, maximális limit: %d", site_url, max_total_limit)
 
-    # selected pages
-    selected = config.get('selected', 'pages', fallback='').strip(
-    ) if config.has_section('selected') else ''
-    selected_pages = [p.strip() for p in selected.split(',') if p.strip()]
+    try:
+        # selected pages feldolgozása
+        selected_pages = _parse_selected_pages(config)
+    except ValueError as e:
+        logger.error(str(e))
+        return
 
     # related pages
     related_root = config.get('related', 'root', fallback='').strip(
@@ -406,30 +459,61 @@ def auto_fetch_from_config(conf_file='wiki_rag.ini'):
         related_limit_str) if related_limit_str.isdigit() else 50
 
     all_pages = []  # Közös lista az összes oldal számára
+    total_pages_count = 0
 
+    # 1. eset: Ha mind a [selected] és [related] üres, akkor a wiki url-ét töltjük le
+    if not selected_pages and not related_root:
+        logger.info("Sem [selected], sem [related] szekció nincs megadva, letöltjük a wiki url-t a limitig")
+        fetch_wiki_pages(
+            site_url, 
+            path=path, 
+            username=username, 
+            password=password, 
+            limit=max_total_limit, 
+            output_path=DEFAULT_OUTPUT
+        )
+        return
+
+    # 2. eset: selected pages feldolgozása
     if selected_pages:
+        # Ellenőrizzük, hogy nem lépjük-e túl a limitet
+        if len(selected_pages) > max_total_limit:
+            logger.warning("A kiválasztott oldalak száma (%d) meghaladja a limitet (%d), csak az első %d oldalt töltjük le", 
+                         len(selected_pages), max_total_limit, max_total_limit)
+            selected_pages = selected_pages[:max_total_limit]
+        
         logger.info("Kiválasztott oldalak letöltése: %s", selected_pages)
         selected_data = fetch_selected_pages_return(
             site_url, selected_pages, path=path, username=username, password=password)
         all_pages.extend(selected_data)
+        total_pages_count += len(selected_data)
 
-    if related_root:  # Változás: elif helyett if
+    # 3. eset: related pages feldolgozása (ha még van hely a limitben)
+    if related_root and total_pages_count < max_total_limit:
+        remaining_limit = max_total_limit - total_pages_count
+        actual_related_limit = min(related_limit, remaining_limit)
+        
         logger.info(
-            "Kapcsolódó oldalak letöltése: '%s' gyök alapján",
-            related_root)
+            "Kapcsolódó oldalak letöltése: '%s' gyök alapján, limit: %d (maradék hely: %d)",
+            related_root, actual_related_limit, remaining_limit)
+        
         related_data = fetch_related_pages_return(
             site_url,
             related_root,
-            limit=related_limit,
+            limit=actual_related_limit,
             path=path,
             username=username,
             password=password)
         all_pages.extend(related_data)
+        total_pages_count += len(related_data)
+    elif related_root and total_pages_count >= max_total_limit:
+        logger.warning("A limit (%d) már elérve a selected oldalakkal, related oldalakat nem töltjük le", max_total_limit)
 
-    if not selected_pages and not related_root:
-        logger.warning(
-            "Nincs megadva letöltendő oldal a [selected] vagy [related] szekcióban.")
-        return
+    # Végleges ellenőrzés és mentés
+    if total_pages_count > max_total_limit:
+        logger.warning("A letöltött oldalak száma (%d) meghaladja a limitet (%d), csak az első %d oldalt mentjük", 
+                     total_pages_count, max_total_limit, max_total_limit)
+        all_pages = all_pages[:max_total_limit]
 
     # Végső mentés
     if all_pages:

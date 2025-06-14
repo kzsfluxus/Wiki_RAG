@@ -4,3 +4,5 @@ __pycache__
 .coverage
 data/wiki_pages.json
 data/index.faiss
+TODO.txt
+wiki_rag.ini

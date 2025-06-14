@@ -98,6 +98,7 @@ url = hu.wikipedia.org  # A mediawiki url-je
 path = /w/              # Prefix, többnyire /w/ vagy /wiki/
 username =              # Felhasználónév, amennyiben szükséges
 password =              # Jelszó
+limit =                 # Maximálisan letölthető oldalak száma, amennyiben nincs megadva a konstans érték 100
 
 [selected]
 pages = Spanyolország   # Letöltendő oldal(ak)
@@ -106,9 +107,39 @@ pages = Spanyolország   # Letöltendő oldal(ak)
 root = Madrid           # További Madriddal kapcsolatos oldalak
 limit = 50              # Letöltött oldalak maximális száma
 ```
+
+Ha sok konkrét letöltendő oldalunk van megadható a következő formában is:
+
+
+```ini
+[wiki]
+url = hu.wikipedia.org  # A mediawiki url-je
+path = /w/              # Prefix, többnyire /w/ vagy /wiki/
+username =              # Felhasználónév, amennyiben szükséges
+password =              # Jelszó
+limit =                 # Maximálisan letölthető oldalak száma, amennyiben nincs megadva a konstans érték 100
+
+[selected]
+pages.1 = Madrid, Sevilla   # Letöltendő oldal(ak)
+pages.2 = Barcelona
+pages.3 = Valencia
+pages.4 = Zaragoza
+
+[related]
+root = Spanyolország    # További Madriddal kapcsolatos oldalak
+limit = 50              # Letöltött oldalak maximális száma
+```
+> ! A `pages =` és a `pages.n =` formátum nem keverhető egy konfig fájlon belül
+
+Amennyiben a [selected] és a [related] szekciót üresen hagyjuk, akkor a megadott url-ről a limitben meghatárotott számú oldalt tölt le.
+
 ### Nyelvi modell
 
-Amennyiben üresen hagyjuk, az alapértelmezett `mistral` modellt használja a rendszer
+Ha a language_model-nek nem adunk értéket, az alapértelmezett `mistral` modellt használja a rendszer.
+
+```bash
+ollama push llama3.2:latest
+```
 
 models/models.ini
 
@@ -116,6 +147,7 @@ models/models.ini
 [models]
 language_model = llama3.2:latest
 ```
+
 ## Képernyőképek
 
 ![config](images/config.png)
