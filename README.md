@@ -126,7 +126,7 @@ pages.3 = Valencia
 pages.4 = Zaragoza
 
 [related]
-root = Spanyolország    # További Madriddal kapcsolatos oldalak
+root = Spanyolország    # További Spanyolországgal kapcsolatos oldalak
 limit = 50              # Letöltött oldalak maximális száma
 ```
 > ! A `pages =` és a `pages.n =` formátum nem keverhető egy konfig fájlon belül
