@@ -2,9 +2,24 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 11 03:21:15 2025
-
 @author: zsolt
+
+A konfigurációs fájlból nyelvi modell nevét betöltő segédfüggvény.
+
+Ez a modul lehetővé teszi, hogy a `models/models.ini` fájlban megadott modellnevet
+olvassuk ki. Ha a konfigurációs fájl nem érhető el vagy érvénytelen értéket tartalmaz,
+az alapértelmezett modellnév kerül visszaadásra. A naplózáshoz a `logging` modult használja.
+
+A konfigurációs fájl elvárt formátuma:
+
+    [models]
+    language_model = mistral
+
+Functions:
+    get_model(path=MODEL_PATH, default_model='mistral'):
+        Beolvassa a nyelvi modell nevét a konfigurációs fájlból.
 """
+
 import configparser
 from pathlib import Path
 import logging
