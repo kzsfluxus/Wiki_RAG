@@ -34,7 +34,7 @@ class Embedder:
         documents (list): A dokumentumok listája.
     """
 
-    def __init__(self, embedding_model_name='paraphrase-multilingual-mpnet-base-v2'):
+    def __init__(self, embedding_model_name='sentence-transformers/LaBSE'):
         # Opciók:
         # 'paraphrase-multilingual-mpnet-base-v2' 768 dimenziós, lassab, pontosabb
         # 'paraphrase-multilingual-MiniLM-L12-v2' 384 dimenziós, gyorsabb, de pontatlan

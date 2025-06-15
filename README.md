@@ -7,7 +7,7 @@ A Wiki RAG (retrieval-augmented generation) program egy intelligens információ
 ## ✨ Főbb jellemzők
 
 - 🕸️ MediaWiki-oldalak lekérdezése `mwclient` használatával
-- 🧠 Embedding generálás `paraphrase-multilingual-mpnet-base-v2` modellel 
+- 🧠 Embedding generálás `sentence-transformers/LaBSE` modellel 
 - ⚡ FAISS-alapú keresés
 - 🌐 Flask-alapú webes keresőfelület 
 
