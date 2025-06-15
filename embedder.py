@@ -35,7 +35,10 @@ class Embedder:
     """
 
     def __init__(self, embedding_model_name='paraphrase-multilingual-mpnet-base-v2'):
-        # Opciók 'paraphrase-multilingual-mpnet-base-v2', 'paraphrase-multilingual-MiniLM-L12-v2'
+        # Opciók:
+        # 'paraphrase-multilingual-mpnet-base-v2' 768 dimenziós, lassab, pontosabb
+        # 'paraphrase-multilingual-MiniLM-L12-v2' 384 dimenziós, gyorsabb, de pontatlan
+        # 'sentence-transformers/LaBSE' 768 dimenziós, legpontosabb
         """
         Embedder osztály inicializálása.
 
